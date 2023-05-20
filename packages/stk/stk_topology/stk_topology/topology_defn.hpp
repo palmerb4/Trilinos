@@ -15,7 +15,7 @@ unsigned topology::num_nodes() const
 {
   using functor = topology_detail::num_nodes_impl;
   topology::apply_functor< functor > apply;
-  if (m_value < END_TOPOLOGY)
+  if ((m_value < END_TOPOLOGY) || is_linker())
       return apply(m_value);
   else if (is_superedge())
       return m_value - SUPEREDGE_START;
@@ -30,7 +30,7 @@ topology::rank_t topology::rank() const
 {
   using functor = topology_detail::rank_impl;
   topology::apply_functor< functor > apply;
-  if (m_value < END_TOPOLOGY)
+  if ((m_value < END_TOPOLOGY) || is_linker())
       return apply(m_value);
   else if (is_superedge())
       return topology::EDGE_RANK;
@@ -74,9 +74,10 @@ void topology::sub_topology_node_ordinals(unsigned sub_rank, unsigned sub_ordina
 {
   switch(sub_rank)
   {
-  case NODE_RANK: *output_ordinals = sub_ordinal;                    break;
-  case EDGE_RANK: edge_node_ordinals(sub_ordinal, output_ordinals);  break;
-  case FACE_RANK: face_node_ordinals(sub_ordinal, output_ordinals);  break;
+  case NODE_RANK: *output_ordinals = sub_ordinal;                          break;
+  case EDGE_RANK: edge_node_ordinals(sub_ordinal, output_ordinals);        break;
+  case FACE_RANK: face_node_ordinals(sub_ordinal, output_ordinals);        break;
+  case ELEMENT_RANK: element_node_ordinals(sub_ordinal, output_ordinals);  break;
   default: break;
   }
 }
@@ -87,9 +88,10 @@ void topology::sub_topology_nodes(const NodeArray & nodes, unsigned sub_rank, un
 {
   switch(sub_rank)
   {
-  case NODE_RANK: *output_nodes = nodes[sub_ordinal];            break;
-  case EDGE_RANK: edge_nodes(nodes, sub_ordinal, output_nodes);  break;
-  case FACE_RANK: face_nodes(nodes, sub_ordinal, output_nodes);  break;
+  case NODE_RANK: *output_nodes = nodes[sub_ordinal];               break;
+  case EDGE_RANK: edge_nodes(nodes, sub_ordinal, output_nodes);     break;
+  case FACE_RANK: face_nodes(nodes, sub_ordinal, output_nodes);     break;
+  case ELEMENT_RANK: element_nodes(nodes, sub_ordinal, output_nodes);  break;
   default: break;
   }
 }
@@ -102,6 +104,7 @@ unsigned topology::num_sub_topology(unsigned sub_rank) const
   case NODE_RANK: return num_nodes();
   case EDGE_RANK: return num_edges();
   case FACE_RANK: return num_faces();
+  case ELEMENT_RANK: return num_elements();
   default: break;
   }
   return 0;
@@ -115,6 +118,7 @@ topology topology::sub_topology(unsigned sub_rank, unsigned sub_ordinal) const
   case NODE_RANK: return NODE;
   case EDGE_RANK: return edge_topology(sub_ordinal);
   case FACE_RANK: return face_topology(sub_ordinal);
+  case ELEMENT_RANK: return element_topology(sub_ordinal);
   default: break;
   }
   return INVALID_TOPOLOGY;
@@ -139,7 +143,7 @@ unsigned topology::num_sides() const
 {
   unsigned num_sides_out = 0u;
   if (side_rank() != INVALID_RANK) {
-    num_sides_out = side_rank() > NODE_RANK? num_sub_topology(side_rank()) : num_vertices();
+    num_sides_out = side_rank() > NODE_RANK ? num_sub_topology(side_rank()) : num_vertices();
   }
   return num_sides_out;
 }
@@ -148,6 +152,12 @@ STK_INLINE_FUNCTION
 topology topology::side_topology(unsigned side_ordinal) const
 {
   return sub_topology(side_rank(), side_ordinal);
+}
+
+STK_INLINE_FUNCTION
+bool topology::is_linker() const
+{
+  return m_value >= LINKER_START && m_value <= LINKER_END;
 }
 
 STK_INLINE_FUNCTION
@@ -224,6 +234,13 @@ unsigned topology::num_faces() const {
 }
 
 STK_INLINE_FUNCTION
+unsigned topology::num_elements() const {
+  using functor = topology_detail::num_elements_impl;
+  topology::apply_functor< functor > apply;
+  return apply(m_value);
+}
+
+STK_INLINE_FUNCTION
 unsigned topology::num_permutations() const {
   using functor = topology_detail::num_permutations_impl;
   topology::apply_functor< functor > apply;
@@ -280,6 +297,14 @@ stk::topology topology::face_topology(unsigned ordinal) const {
   return apply(m_value);
 }
 
+STK_INLINE_FUNCTION
+stk::topology topology::element_topology(unsigned ordinal) const {
+  using functor = topology_detail::element_topology_impl;
+  functor f(ordinal);
+  topology::apply_functor< functor > apply( f );
+  return apply(m_value);
+}
+
 template <typename OrdinalOutputIterator>
 STK_INLINE_FUNCTION
 void topology::edge_node_ordinals( unsigned ordinal, OrdinalOutputIterator output_ordinals) const
@@ -295,6 +320,16 @@ STK_INLINE_FUNCTION
 void topology::face_node_ordinals( unsigned ordinal, OrdinalOutputIterator output_ordinals) const
 {
   using functor = topology_detail::face_node_ordinals_impl<OrdinalOutputIterator>;
+  functor f(ordinal, output_ordinals);
+  topology::apply_functor< functor > apply( f );
+  apply(m_value);
+}
+
+template <typename OrdinalOutputIterator>
+STK_INLINE_FUNCTION
+void topology::element_node_ordinals( unsigned ordinal, OrdinalOutputIterator output_ordinals) const
+{
+  using functor = topology_detail::element_node_ordinals_impl<OrdinalOutputIterator>;
   functor f(ordinal, output_ordinals);
   topology::apply_functor< functor > apply( f );
   apply(m_value);
@@ -334,6 +369,19 @@ void topology::face_nodes(const NodeArray & nodes,
   topology::apply_functor< functor > apply( f );
   apply(m_value);
 }
+
+template <typename NodeArray, typename NodeOutputIterator>
+STK_INLINE_FUNCTION
+void topology::element_nodes(const NodeArray & nodes,
+                            unsigned ordinal,
+                            NodeOutputIterator output_ordinals) const
+{
+  using functor = topology_detail::element_nodes_impl<NodeArray,NodeOutputIterator>;
+  functor f(nodes,ordinal,output_ordinals);
+  topology::apply_functor< functor > apply( f );
+  apply(m_value);
+}
+
 
 template <typename NodeArray, typename NodeOutputIterator>
 STK_INLINE_FUNCTION

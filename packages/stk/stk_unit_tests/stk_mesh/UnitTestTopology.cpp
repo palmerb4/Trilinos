@@ -903,6 +903,7 @@ protected:
     const stk::mesh::Permutation perm = *get_bulk().begin_permutations(elem, get_meta().side_rank());
     EXPECT_EQ(expectedPerm, perm);
   }
+  
   void create_mesh(stk::topology superElem, stk::topology superSide, const SuperTopologySideData &s)
   {
     setup_empty_mesh(stk::mesh::BulkData::AUTO_AURA);

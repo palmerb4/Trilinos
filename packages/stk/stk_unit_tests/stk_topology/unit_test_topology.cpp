@@ -213,6 +213,54 @@ TEST( stk_topology, superelement_topology )
   EXPECT_EQ( badT.rank(), topology::INVALID_RANK);
 }
 
+TEST(stk_topology, linker_topology)
+{
+  using stk::topology;
+
+  topology t = create_linker_topology(topology::PARTICLE, topology::HEX_8);
+
+  EXPECT_EQ(t.num_nodes(), 9u);
+  EXPECT_EQ(t.num_edges(), 12u);
+  EXPECT_EQ(t.num_faces(), 6u);
+  EXPECT_EQ(t.num_elements(), 2u);
+  EXPECT_EQ(t.rank(), topology::CONSTRAINT_RANK);
+  EXPECT_EQ(t.is_valid(), true);
+
+  EXPECT_EQ(true, t.is_linker());
+  {
+    std::ostringstream name;
+    name << t;
+    std::string goldName("LINKER_PARTICLE_HEXAHEDRON_8");
+    EXPECT_EQ(goldName, name.str());
+  }
+
+  topology notLinker = topology::HEX_8;
+  EXPECT_FALSE(notLinker.is_linker());
+
+  topology newT = stk::create_linker_topology(topology::HEX_27, topology::HEX_27);
+
+  EXPECT_EQ(newT.num_nodes(), 54u);
+  EXPECT_EQ(newT.num_edges(), 24u);
+  EXPECT_EQ(newT.num_faces(), 12u);
+  EXPECT_EQ(newT.num_elements(), 2u);
+  EXPECT_EQ(newT.rank(), topology::CONSTRAINT_RANK);
+  EXPECT_EQ(newT.is_valid(), true);
+
+  EXPECT_EQ(true, newT.is_linker());
+  {
+    std::ostringstream name;
+    name << newT;
+    std::string goldName("LINKER_HEXAHEDRON_27_HEXAHEDRON_27");
+    EXPECT_EQ(goldName, name.str());
+  }
+
+  topology anotherT = stk::create_linker_topology(stk::topology::PARTICLE, stk::topology::HEX_8);
+  EXPECT_EQ(t, anotherT);
+
+  topology badT = stk::create_linker_topology(stk::topology::INVALID_TOPOLOGY, stk::topology::HEX_8);
+  EXPECT_EQ(badT.rank(), topology::INVALID_RANK);
+}
+
 TEST( stk_topology, arrayMesh )
 {
   using stk::topology;

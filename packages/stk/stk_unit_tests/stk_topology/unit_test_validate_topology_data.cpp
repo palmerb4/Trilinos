@@ -64,7 +64,7 @@ typename std::enable_if<(topology_data<Topology>::num_edges > 0), bool>::type ch
     edge_node_ordinals &= (totalEdgeNodeOffset == TopologyData::edge_node_ordinals_offsets[edge+1]);
   }
 
-  unsigned ordinalVectorLength = sizeof(TopologyData::edge_node_ordinals_vector) / sizeof(*TopologyData::edge_node_ordinals_vector);
+  unsigned ordinalVectorLength = TopologyData::edge_node_ordinals_vector.size();
   EXPECT_EQ(totalEdgeNodeOffset, ordinalVectorLength);
   edge_node_ordinals &= (totalEdgeNodeOffset == ordinalVectorLength);
 
@@ -84,7 +84,7 @@ typename std::enable_if<(topology_data<Topology>::num_faces > 0), bool>::type ch
   using TopologyData = topology_data<Topology>;
   bool face_topology = true;
 
-  unsigned faceTopologyVectorLength = sizeof(TopologyData::face_topology_vector) / sizeof(*TopologyData::face_topology_vector);
+  unsigned faceTopologyVectorLength = TopologyData::face_topology_vector.size();
   face_topology = (stk::topology(Topology).num_faces() == faceTopologyVectorLength);
   EXPECT_EQ(stk::topology(Topology).num_faces(), faceTopologyVectorLength);
 
@@ -117,7 +117,7 @@ typename std::enable_if<(topology_data<Topology>::num_faces > 0), bool>::type ch
     face_node_ordinals &= (totalFaceNodeOffset == TopologyData::face_node_ordinals_offsets[face+1]);
   }
 
-  unsigned ordinalVectorLength = sizeof(TopologyData::face_node_ordinals_vector) / sizeof(*TopologyData::face_node_ordinals_vector);
+  unsigned ordinalVectorLength = TopologyData::face_node_ordinals_vector.size();
   EXPECT_EQ(totalFaceNodeOffset, ordinalVectorLength);
   face_node_ordinals &= (totalFaceNodeOffset == ordinalVectorLength);
 
@@ -132,11 +132,63 @@ typename std::enable_if<(topology_data<Topology>::num_faces == 0), bool>::type c
 
 
 template <stk::topology::topology_t Topology>
+typename std::enable_if<(topology_data<Topology>::num_elements > 0), bool>::type check_element_topology()
+{
+  using TopologyData = topology_data<Topology>;
+  bool element_topology = true;
+
+  unsigned elementTopologyVectorLength = TopologyData::element_topology_vector.size();
+  element_topology = (stk::topology(Topology).num_elements() == elementTopologyVectorLength);
+  EXPECT_EQ(stk::topology(Topology).num_elements(), elementTopologyVectorLength);
+
+  return element_topology;
+}
+
+template <stk::topology::topology_t Topology>
+typename std::enable_if<(topology_data<Topology>::num_elements == 0), bool>::type check_element_topology()
+{
+  return true;
+}
+
+
+template <stk::topology::topology_t Topology>
+typename std::enable_if<(topology_data<Topology>::num_elements > 0), bool>::type check_element_node_offsets()
+{
+  using TopologyData = topology_data<Topology>;
+  bool element_node_ordinals = true;
+  unsigned totalElementNodeOffset = 0;
+
+  EXPECT_EQ(totalElementNodeOffset, TopologyData::element_node_ordinals_offsets[0]);
+  element_node_ordinals &= (0 == TopologyData::element_node_ordinals_offsets[0]);
+
+  for (unsigned element = 0; element < TopologyData::num_elements; ++element) {
+    stk::topology elementTopo = stk::topology(Topology).element_topology(element);
+    unsigned numElementNodes = elementTopo.num_nodes();
+    totalElementNodeOffset += numElementNodes;
+
+    EXPECT_EQ(totalElementNodeOffset, TopologyData::element_node_ordinals_offsets[element+1]);
+    element_node_ordinals &= (totalElementNodeOffset == TopologyData::element_node_ordinals_offsets[element+1]);
+  }
+
+  unsigned ordinalVectorLength = TopologyData::element_node_ordinals_vector.size();
+  EXPECT_EQ(totalElementNodeOffset, ordinalVectorLength);
+  element_node_ordinals &= (totalElementNodeOffset == ordinalVectorLength);
+
+  return element_node_ordinals;
+}
+
+template <stk::topology::topology_t Topology>
+typename std::enable_if<(topology_data<Topology>::num_elements == 0), bool>::type check_element_node_offsets()
+{
+  return true;
+}
+
+template <stk::topology::topology_t Topology>
 typename std::enable_if<((topology_data<Topology>::num_faces > 0) && (topology_data<Topology>::num_nodes > 0)), bool>::type check_permutation_node_offsets()
 {
   using TopologyData = topology_data<Topology>;
 
-  unsigned permutationVectorLength = sizeof(TopologyData::permutation_node_ordinals_vector) / sizeof(*TopologyData::permutation_node_ordinals_vector);
+  unsigned permutationVectorLength = TopologyData::permutation_node_ordinals_vector.size();
   unsigned numPermutations = permutationVectorLength / TopologyData::num_nodes;
   bool permutation_node_ordinals = (TopologyData::num_permutations == numPermutations);
   EXPECT_EQ(stk::topology(Topology).num_permutations(), numPermutations);

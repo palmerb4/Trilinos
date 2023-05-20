@@ -34,11 +34,10 @@
 
 #include "stk_topology/topology.hpp"
 #include "stk_util/stk_kokkos_macros.h"  // for STK_FUNCTION
+#include <Kokkos_Core.hpp>               // for Kokkos::sqrt
 #include <iomanip>                       // for operator<<, setw
 #include <sstream>                       // for operator<<, ostream, basic_ostream, endl, basic_...
 #include <string>                        // for operator<<, string
-
-
 
 namespace stk {
 
@@ -47,10 +46,21 @@ std::string topology::name() const
   if (m_value < END_TOPOLOGY) {
     return char_name();
   }
-
+  
   std::ostringstream oss;
   oss << char_name() << "_";
-  if ( is_superelement() )
+  if ( is_linker() ) 
+  {
+    const topology topology0 = static_cast<topology::topology_t>(
+        (static_cast<unsigned>(m_value) - static_cast<unsigned>(topology::LINKER_START)) /
+        static_cast<unsigned>(topology::NUM_TOPOLOGIES) + static_cast<unsigned>(topology::BEGIN_TOPOLOGY));
+    const topology topology1 = static_cast<topology::topology_t>(
+        (static_cast<unsigned>(m_value) - static_cast<unsigned>(topology::LINKER_START)) %
+        static_cast<unsigned>(topology::NUM_TOPOLOGIES) + static_cast<unsigned>(topology::BEGIN_TOPOLOGY));
+
+    oss << topology0.char_name() << "_" << topology1.char_name();
+  } 
+  else if ( is_superelement() )
     oss << (static_cast<unsigned>(m_value) - topology::SUPERELEMENT_START);
   else if ( is_superface() )
     oss << (static_cast<unsigned>(m_value) - topology::SUPERFACE_START);
@@ -116,9 +126,12 @@ const char * topology::char_name() const
   default: break;
   }
 
-  if ( is_superelement() ) {
-    return "SUPERELEMENT_TOPOLOGY";
+  if ( is_linker() ) {
+    return "LINKER";
   }
+  else if ( is_superelement() ) {
+    return "SUPERELEMENT_TOPOLOGY";
+  } 
   else if ( is_superface() ) {
     return "SUPERFACE_TOPOLOGY";
   }
@@ -134,12 +147,13 @@ std::ostream & operator<<(std::ostream &out, topology::rank_t r)
 {
   switch (r)
   {
-  case topology::NODE_RANK:    out << "NODE_RANK"; break;
-  case topology::EDGE_RANK:    out << "EDGE_RANK"; break;
-  case topology::FACE_RANK:    out << "FACE_RANK"; break;
-  case topology::ELEMENT_RANK: out << "ELEMENT_RANK"; break;
-  case topology::INVALID_RANK: out << "INVALID_RANK"; break;
-  default:                     out << "RANK_" << static_cast<unsigned>(r); break;
+  case topology::NODE_RANK:       out << "NODE_RANK"; break;
+  case topology::EDGE_RANK:       out << "EDGE_RANK"; break;
+  case topology::FACE_RANK:       out << "FACE_RANK"; break;
+  case topology::ELEMENT_RANK:    out << "ELEMENT_RANK"; break;
+  case topology::CONSTRAINT_RANK: out << "CONSTRAINT_RANK"; break;
+  case topology::INVALID_RANK:    out << "INVALID_RANK"; break;
+  default:                        out << "RANK_" << static_cast<unsigned>(r); break;
   }
   return out;
 }
@@ -149,22 +163,22 @@ std::ostream & operator<<(std::ostream &out, topology t)
   return out << t.name();
 }
 
-bool isTriangleElement (topology topo)
+bool isTriangleElement(topology topo)
 {
     return ((topo == topology::TRI_3_2D) || (topo == topology::TRI_4_2D) || (topo == topology::TRI_6_2D));
 }
 
-bool isQuadrilateralElement (topology topo)
+bool isQuadrilateralElement(topology topo)
 {
     return ((topo == topology::QUAD_4_2D) || (topo == topology::QUAD_8_2D) || (topo == topology::QUAD_9_2D));
 }
 
-bool isTetrahedronElement (topology topo)
+bool isTetrahedronElement(topology topo)
 {
     return ((topo == topology::TET_4) || (topo == topology::TET_8) || (topo == topology::TET_10) || (topo == topology::TET_11));
 }
 
-bool isHexahedronElement (topology topo)
+bool isHexahedronElement(topology topo)
 {
     return ((topo == topology::HEX_8) || (topo == topology::HEX_20) || (topo == topology::HEX_27));
 }
@@ -230,6 +244,19 @@ void verbose_print_topology(std::ostream &out, topology t)
     }
   }
 
+  unsigned numElements = t.num_elements();
+  out << std::setw(shiftwidth) << "num elements: " << numElements << std::endl;
+  if (numElements > 0) {
+    for (unsigned i=0; i<numElements; ++i) {
+      out << std::setw(shiftwidth) << t.element_topology(i) << " " << i << ": (";
+      t.element_node_ordinals(i,node_ordinals);
+      for (unsigned j=0, ne = t.element_topology(i).num_nodes(); j < ne; ++j) {
+        out << node_ordinals[j] << ", ";
+      }
+      out << "\b\b)  " << std::endl;
+    }
+  }
+
   // jvo: is positive permutation according to right-hand-rule?
   unsigned numPermutations = t.num_permutations();
   unsigned numPositivePermutations = t.num_positive_permutations();
@@ -267,5 +294,3 @@ bool is_solid_element(stk::topology t)
     return t.rank()==stk::topology::ELEM_RANK && !t.is_shell() && t.dimension()==3;
 }
 } //namespace stk
-
-

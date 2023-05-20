@@ -164,6 +164,14 @@ struct num_faces_impl {
   result_type operator()(Topology) const { return Topology::num_faces; }
 };
 
+struct num_elements_impl {
+  using result_type = unsigned;
+
+  template <typename Topology>
+  STK_INLINE_FUNCTION
+  result_type operator()(Topology) const { return Topology::num_elements; }
+};
+
 struct num_permutations_impl {
   using result_type = unsigned;
 
@@ -203,21 +211,6 @@ struct edge_topology_impl {
   unsigned m_ordinal;
 };
 
-struct defined_on_spatial_dimension_impl {
-  using result_type = bool;
-
-  STK_INLINE_FUNCTION
-  defined_on_spatial_dimension_impl(unsigned ordinal)
-    : m_ordinal(ordinal)
-  {}
-
-  template <typename Topology>
-  STK_INLINE_FUNCTION
-  result_type operator()(Topology) const { return Topology::defined_on_spatial_dimension(m_ordinal); }
-
-  unsigned m_ordinal;
-};
-
 struct face_topology_impl {
   using result_type = stk::topology;
 
@@ -229,6 +222,36 @@ struct face_topology_impl {
   template <typename Topology>
   STK_INLINE_FUNCTION
   result_type operator()(Topology) const { return Topology::face_topology(m_ordinal); }
+
+  unsigned m_ordinal;
+};
+
+struct element_topology_impl {
+  using result_type = stk::topology;
+
+  STK_INLINE_FUNCTION
+  element_topology_impl(unsigned ordinal)
+    : m_ordinal(ordinal)
+  {}
+
+  template <typename Topology>
+  STK_INLINE_FUNCTION
+  result_type operator()(Topology) const { return Topology::element_topology(m_ordinal); }
+
+  unsigned m_ordinal;
+};
+
+struct defined_on_spatial_dimension_impl {
+  using result_type = bool;
+
+  STK_INLINE_FUNCTION
+  defined_on_spatial_dimension_impl(unsigned ordinal)
+    : m_ordinal(ordinal)
+  {}
+
+  template <typename Topology>
+  STK_INLINE_FUNCTION
+  result_type operator()(Topology) const { return Topology::defined_on_spatial_dimension(m_ordinal); }
 
   unsigned m_ordinal;
 };
@@ -259,6 +282,21 @@ struct face_node_ordinals_impl {
   template <typename Topology>
   STK_INLINE_FUNCTION
   void operator()(Topology) const { Topology::face_node_ordinals(m_ordinal,m_output_ordinals); }
+  unsigned m_ordinal;
+  OrdinalOutputIterator m_output_ordinals;
+};
+
+template <typename OrdinalOutputIterator>
+struct element_node_ordinals_impl {
+  using result_type = void;
+  STK_FUNCTION
+  element_node_ordinals_impl(unsigned ordinal, OrdinalOutputIterator output_ordinals)
+    : m_ordinal(ordinal)
+    , m_output_ordinals(output_ordinals)
+  {}
+  template <typename Topology>
+  STK_INLINE_FUNCTION
+  void operator()(Topology) const { Topology::element_node_ordinals(m_ordinal,m_output_ordinals); }
   unsigned m_ordinal;
   OrdinalOutputIterator m_output_ordinals;
 };
@@ -321,6 +359,27 @@ struct face_nodes_impl {
 };
 
 template <typename NodeArray, typename NodeOutputIterator>
+struct element_nodes_impl {
+  using result_type = void;
+  STK_FUNCTION
+  element_nodes_impl(const NodeArray &nodes,
+                  unsigned ordinal,
+                  NodeOutputIterator output_ordinals)
+    : m_nodes(nodes),
+      m_ordinal(ordinal),
+      m_output_ordinals(output_ordinals)
+  {}
+
+  template <typename Topology>
+  STK_INLINE_FUNCTION
+  void operator()(Topology) const { Topology::element_nodes(m_nodes,m_ordinal,m_output_ordinals); }
+
+  const NodeArray & m_nodes;
+  unsigned m_ordinal;
+  NodeOutputIterator m_output_ordinals;
+};
+
+template <typename NodeArray, typename NodeOutputIterator>
 struct permutation_nodes_impl {
   using result_type = void;
   STK_FUNCTION
@@ -345,4 +404,3 @@ struct permutation_nodes_impl {
 } /*namespace stk*/
 
 #endif //STKTOPOLOGY_TOPOLOGY_TCC
-

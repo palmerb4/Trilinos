@@ -6035,6 +6035,69 @@ TEST( BulkData, AddSharedNodesInTwoSteps)
 
 }
 
+TEST(BulkData, linker_topology_relations)
+{
+    const size_t spatial_dimension = 3;
+    std::vector<std::string> rank_names = {"node", "edge", "face", "elem", "constraint"};
+    stk::mesh::MetaData meta(spatial_dimension, rank_names);
+    meta.use_simple_fields();
+
+    stk::topology linkerTopo = stk::create_linker_topology(stk::topology::PARTICLE, stk::topology::HEX_8);
+    stk::mesh::Part& particle_part = meta.declare_part_with_topology("particle", stk::topology::PARTICLE);
+    stk::mesh::Part& hex_part = meta.declare_part_with_topology("hex", stk::topology::HEX_8);
+    stk::mesh::Part& linker_part = meta.declare_part_with_topology("linker", linkerTopo);
+
+    meta.commit();
+
+    stk::unit_test_util::BulkDataTester bulk(meta, MPI_COMM_WORLD);
+    int rank = stk::parallel_machine_rank(MPI_COMM_WORLD);
+    int size = stk::parallel_machine_size(MPI_COMM_WORLD);
+
+    bulk.modification_begin();
+
+    std::vector<stk::mesh::Part *> add_particle_part = {&particle_part};
+    std::vector<stk::mesh::Part *> add_hex_part = {&hex_part};
+    std::vector<stk::mesh::Part *> add_linker_part = {&linker_part};
+    stk::mesh::Entity particle_elem = bulk.declare_element(rank + 1, add_particle_part);
+    stk::mesh::Entity hex_elem = bulk.declare_element(rank + size + 1, add_hex_part);
+    stk::mesh::Entity linker_ent = bulk.declare_constraint(rank + 2 * size + 1, add_linker_part);
+
+    std::vector<stk::mesh::Entity> nodes(9);
+    nodes[0] = bulk.declare_node(rank + 3 * size + 1);
+    nodes[1] = bulk.declare_node(rank + 4 * size + 1);
+    nodes[2] = bulk.declare_node(rank + 5 * size + 1);
+    nodes[3] = bulk.declare_node(rank + 6 * size + 1);
+    nodes[4] = bulk.declare_node(rank + 7 * size + 1);
+    nodes[5] = bulk.declare_node(rank + 8 * size + 1);
+    nodes[6] = bulk.declare_node(rank + 9 * size + 1);
+    nodes[7] = bulk.declare_node(rank + 10 * size + 1);
+    nodes[8] = bulk.declare_node(rank + 11 * size + 1);
+
+    bulk.declare_relation(particle_elem, nodes[0], 0);
+    bulk.declare_relation(particle_elem, nodes[1], 1);
+
+    for (unsigned ord = 0; ord < 8; ord++) {
+      bulk.declare_relation(hex_elem, nodes[ord + 1], ord);
+    }
+
+    bulk.declare_relation(linker_ent, particle_elem, 0);
+    bulk.declare_relation(linker_ent, hex_elem, 1);
+
+    bulk.modification_end();
+
+    // Check the connectivity.
+    EXPECT_EQ(bulk.num_nodes(particle_elem), 1u);
+    EXPECT_EQ(bulk.num_nodes(hex_elem), 8u);
+    EXPECT_EQ(bulk.num_nodes(linker_ent), 9u);
+    EXPECT_EQ(bulk.num_elements(linker_ent), 2u);
+    EXPECT_EQ(bulk.num_connectivity(particle_elem, stk::topology::CONSTRAINT_RANK), 1u);
+    EXPECT_EQ(bulk.num_connectivity(hex_elem, stk::topology::CONSTRAINT_RANK), 1u);
+    EXPECT_EQ(particle_elem, bulk.begin_elements(linker_ent)[0]);
+    EXPECT_EQ(hex_elem, bulk.begin_elements(linker_ent)[1]);
+    EXPECT_EQ(linker_ent, bulk.begin(particle_elem, stk::topology::CONSTRAINT_RANK)[0]);
+    EXPECT_EQ(linker_ent, bulk.begin(hex_elem, stk::topology::CONSTRAINT_RANK)[0]);
+}
+
 TEST(ChangeEntityId, test_throw_on_shared_node)
 {
   int numProcs = stk::parallel_machine_size(MPI_COMM_WORLD);

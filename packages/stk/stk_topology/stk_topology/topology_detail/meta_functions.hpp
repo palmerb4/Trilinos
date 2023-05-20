@@ -54,6 +54,13 @@ constexpr unsigned num_face_nodes_() {
   return (Topology::face_node_ordinals_offsets[FaceOrdinal+1] - Topology::face_node_ordinals_offsets[FaceOrdinal]);
 }
 
+template <typename Topology, unsigned ElementOrdinal>
+STK_INLINE_FUNCTION
+constexpr unsigned num_element_nodes_() {
+  return (Topology::element_node_ordinals_offsets[ElementOrdinal+1] - Topology::element_node_ordinals_offsets[ElementOrdinal]);
+}
+
+
 template <typename Topology, unsigned EdgeOrdinal, unsigned NodeOrdinal>
 STK_INLINE_FUNCTION
 constexpr unsigned edge_node_ordinal_()
@@ -66,6 +73,13 @@ STK_INLINE_FUNCTION
 constexpr unsigned face_node_ordinal_()
 {
   return (Topology::face_node_ordinals_vector[Topology::face_node_ordinals_offsets[FaceOrdinal] + NodeOrdinal]);
+}
+
+template <typename Topology, unsigned ElementOrdinal, unsigned NodeOrdinal>
+STK_INLINE_FUNCTION
+constexpr unsigned element_node_ordinal_()
+{
+  return (Topology::element_node_ordinals_vector[Topology::element_node_ordinals_offsets[ElementOrdinal] + NodeOrdinal]);
 }
 
 template <typename Topology, unsigned PermutationOrdinal, unsigned NodeOrdinal>
@@ -112,6 +126,20 @@ constexpr topology::topology_t face_topology_()
 }
 
 //------------------------------------------------------------------------------
+
+template <typename Topology, unsigned ElementOrdinal>
+STK_INLINE_FUNCTION
+constexpr topology::topology_t element_topology_()
+{
+  if constexpr (ElementOrdinal < Topology::num_elements)
+  {
+    return Topology::element_topology_vector[ElementOrdinal];
+  }
+  return topology::INVALID_TOPOLOGY;
+}
+
+//------------------------------------------------------------------------------
+
 template <typename Topology, typename OrdinalOutputFunctor, unsigned EdgeOrdinal, unsigned NumNodes, unsigned CurrentNode = 0>
 struct edge_node_ordinals_impl_ {
   STK_INLINE_FUNCTION
@@ -170,6 +198,34 @@ constexpr int face_node_ordinals_(OrdinalOutputFunctor fillOutput)
   return 0;
 }
 
+//------------------------------------------------------------------------------
+template <typename Topology, typename OrdinalOutputFunctor, unsigned ElementOrdinal, unsigned NumNodes, unsigned CurrentNode = 0>
+struct element_node_ordinals_impl_ {
+  STK_INLINE_FUNCTION
+  constexpr static int execute(OrdinalOutputFunctor fillOutput) {
+    return fillOutput(element_node_ordinal_<Topology, ElementOrdinal, CurrentNode>()),
+           element_node_ordinals_impl_<Topology, OrdinalOutputFunctor, ElementOrdinal, NumNodes, CurrentNode+1>::execute(fillOutput);
+  }
+};
+
+template <typename Topology, typename OrdinalOutputFunctor, unsigned ElementOrdinal, unsigned NumNodes>
+struct element_node_ordinals_impl_<Topology, OrdinalOutputFunctor, ElementOrdinal, NumNodes, NumNodes> {
+  STK_INLINE_FUNCTION
+  constexpr static int execute(OrdinalOutputFunctor fillOutput) {
+    return 0;
+  }
+};
+
+template <typename Topology, unsigned ElementOrdinal, typename OrdinalOutputFunctor>
+STK_INLINE_FUNCTION
+constexpr int element_node_ordinals_(OrdinalOutputFunctor fillOutput)
+{
+  if constexpr (ElementOrdinal < Topology::num_elements)
+  {
+    return element_node_ordinals_impl_<Topology, OrdinalOutputFunctor, ElementOrdinal, num_element_nodes_<Topology, ElementOrdinal>()>::execute(fillOutput);
+  }
+  return 0;
+}
 
 //------------------------------------------------------------------------------
 template <typename Topology, typename OrdinalOutputFunctor, unsigned PermutationOrdinal, unsigned NumNodes, unsigned CurrentNode = 0>

@@ -36,9 +36,12 @@
 #define STKTOPOLOGY_DETAIL_TOPOLOGY_DATA_HPP
 
 // IWYU pragma: private, include "stk_topology/topology.hpp"
-#include "stk_topology/topology_decl.hpp"
-#include <type_traits>
+#include <Kokkos_Core.hpp>
 #include <cstdint>
+#include <type_traits>
+
+#include "stk_topology/topology_decl.hpp"
+#include "stk_topology/topology_detail/linker_helper.hpp"
 
 //TODO implement permutations for tets, pyramids, wedges and hexes
 //TODO implement permutations polarity
@@ -60,8 +63,9 @@ struct topology_data<topology::INVALID_TOPOLOGY>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::INVALID_TOPOLOGY;
   static constexpr topology::topology_t base = topology::INVALID_TOPOLOGY;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 0;
 
   static constexpr topology::rank_t rank = topology::INVALID_RANK;
@@ -73,21 +77,29 @@ struct topology_data<topology::INVALID_TOPOLOGY>
   static constexpr uint8_t num_vertices = 0;
   static constexpr uint8_t num_edges = 0;
   static constexpr uint8_t num_faces = 0;
+  static constexpr uint8_t num_elements = 0;
   static constexpr uint8_t num_permutations = 0;
   static constexpr uint8_t num_positive_permutations = 0;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       false}; // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      false}; // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_vector = {0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> element_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> element_node_ordinals_vector = {0};
+
+  static constexpr Kokkos::Array<uint8_t, 1> permutation_node_ordinals_vector = {0};
+};
+
+template <>
+struct topology_data<topology::END_TOPOLOGY> : public topology_data<topology::INVALID_TOPOLOGY> {
 };
 
 //***************************************************************************
@@ -101,8 +113,9 @@ struct topology_data<topology::NODE>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::NODE;
   static constexpr topology::topology_t base = topology::NODE;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 0;
 
   static constexpr topology::rank_t rank = topology::NODE_RANK;
@@ -117,19 +130,19 @@ struct topology_data<topology::NODE>
   static constexpr uint8_t num_permutations = 0;
   static constexpr uint8_t num_positive_permutations = 0;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       true,   // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      true,   // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_vector = {0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> permutation_node_ordinals_vector = {0};
 };
 
 
@@ -145,8 +158,9 @@ struct topology_data<topology::PARTICLE>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::PARTICLE;
   static constexpr topology::topology_t base = topology::PARTICLE;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 1;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -161,18 +175,18 @@ struct topology_data<topology::PARTICLE>
   static constexpr uint8_t num_permutations = 1;
   static constexpr uint8_t num_positive_permutations = 1;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       true,   // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      true,   // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_vector = {0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> permutation_node_ordinals_vector = {0};
 };
 
 
@@ -192,8 +206,9 @@ struct topology_data<topology::LINE_2>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::LINE_2;
   static constexpr topology::topology_t base = topology::LINE_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 2;
 
   static constexpr topology::rank_t rank = topology::EDGE_RANK;
@@ -208,19 +223,19 @@ struct topology_data<topology::LINE_2>
   static constexpr uint8_t num_permutations = 2;
   static constexpr uint8_t num_positive_permutations = 1;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> edge_node_ordinals_vector = {0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1,
-                                                                 1, 0};
+  static constexpr Kokkos::Array<uint8_t, 4> permutation_node_ordinals_vector = {0, 1,
+                                                                                 1, 0};
 };
 
 
@@ -231,8 +246,8 @@ struct topology_data<topology::LINE_3>
   static constexpr topology::topology_t value = topology::LINE_3;
   static constexpr unsigned num_nodes = 3;
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1,  2,
-                                                                 1, 0,  2};
+  static constexpr Kokkos::Array<uint8_t, 6> permutation_node_ordinals_vector = {0, 1,  2,
+                                                                                 1, 0,  2};
 };
 
 //***************************************************************************
@@ -253,10 +268,10 @@ struct topology_data<topology::LINE_2_1D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       true,    // 1d
-                                                       false,   // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      true,    // 1d
+                                                                      false,   // 2d
+                                                                      false};  // 3d
 };
 
 template <>
@@ -268,10 +283,10 @@ struct topology_data<topology::LINE_3_1D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       true,    // 1d
-                                                       false,   // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      true,    // 1d
+                                                                      false,   // 2d
+                                                                      false};  // 3d
 };
 
 //***************************************************************************
@@ -289,7 +304,7 @@ struct topology_data<topology::BEAM_2>
 {
   static constexpr topology::topology_t value = topology::BEAM_2;
   static constexpr topology::topology_t base = topology::BEAM_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::LINE_2};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::EDGE_RANK;
@@ -297,8 +312,8 @@ struct topology_data<topology::BEAM_2>
   static constexpr uint8_t dimension = 2;
   static constexpr uint8_t num_edges = 1;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1};
+  static constexpr Kokkos::Array<uint8_t, 2> edge_node_ordinals_offsets = {0, 2};
+  static constexpr Kokkos::Array<uint8_t, 2> edge_node_ordinals_vector = {0, 1};
 };
 
 template <>
@@ -307,7 +322,7 @@ struct topology_data<topology::BEAM_3>
 {
   static constexpr topology::topology_t value = topology::BEAM_3;
   static constexpr topology::topology_t base = topology::BEAM_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::LINE_3};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::EDGE_RANK;
@@ -315,8 +330,8 @@ struct topology_data<topology::BEAM_3>
   static constexpr uint8_t dimension = 2;
   static constexpr uint8_t num_edges = 1;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  2};
+  static constexpr Kokkos::Array<uint8_t, 2> edge_node_ordinals_offsets = {0, 3};
+  static constexpr Kokkos::Array<uint8_t, 3> edge_node_ordinals_vector = {0, 1,  2};
 };
 
 //***************************************************************************
@@ -338,8 +353,8 @@ struct topology_data<topology::SHELL_LINE_2>
 {
   static constexpr topology::topology_t value = topology::SHELL_LINE_2;
   static constexpr topology::topology_t base = topology::SHELL_LINE_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 2> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::EDGE_RANK;
@@ -347,14 +362,14 @@ struct topology_data<topology::SHELL_LINE_2>
   static constexpr uint8_t dimension = 2;
   static constexpr uint8_t num_edges = 2;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 0};
+  static constexpr Kokkos::Array<uint8_t, 3> edge_node_ordinals_offsets = {0, 2, 4};
+  static constexpr Kokkos::Array<uint8_t, 4> edge_node_ordinals_vector = {0, 1,
+                                                                          1, 0};
 };
 
 template <>
@@ -363,8 +378,8 @@ struct topology_data<topology::SHELL_LINE_3>
 {
   static constexpr topology::topology_t value = topology::SHELL_LINE_3;
   static constexpr topology::topology_t base = topology::SHELL_LINE_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 2> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::EDGE_RANK;
@@ -372,14 +387,14 @@ struct topology_data<topology::SHELL_LINE_3>
   static constexpr uint8_t dimension = 2;
   static constexpr uint8_t num_edges = 2;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  2,
-                                                          1, 0,  2};
+  static constexpr Kokkos::Array<uint8_t, 3> edge_node_ordinals_offsets = {0, 3, 6};
+  static constexpr Kokkos::Array<uint8_t, 6> edge_node_ordinals_vector = {0, 1,  2,
+                                                                          1, 0,  2};
 };
 
 //***************************************************************************
@@ -398,7 +413,7 @@ struct topology_data<topology::SPRING_2>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::SPRING_2;
   static constexpr topology::topology_t base = topology::SPRING_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 2;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -413,10 +428,10 @@ struct topology_data<topology::SPRING_2>
   static constexpr uint8_t num_permutations = 2;
   static constexpr uint8_t num_positive_permutations = 2;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       true,   // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      true,   // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 };
 
 
@@ -427,7 +442,7 @@ struct topology_data<topology::SPRING_3>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::SPRING_3;
   static constexpr topology::topology_t base = topology::SPRING_2;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> edge_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 3;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -442,10 +457,10 @@ struct topology_data<topology::SPRING_3>
   static constexpr uint8_t num_permutations = 2;
   static constexpr uint8_t num_positive_permutations = 2;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       true,   // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      true,   // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 };
 
 //***************************************************************************
@@ -493,10 +508,11 @@ struct topology_data<topology::TRI_3>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::TRI_3;
   static constexpr topology::topology_t base = topology::TRI_3;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 3> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
 
   static constexpr unsigned num_nodes = 3;
 
@@ -512,25 +528,25 @@ struct topology_data<topology::TRI_3>
   static constexpr uint8_t num_permutations = 6;
   static constexpr uint8_t num_positive_permutations = 3;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 0};
+  static constexpr Kokkos::Array<uint8_t, 4> edge_node_ordinals_offsets = {0, 2, 4, 6};
+  static constexpr Kokkos::Array<uint8_t, 6> edge_node_ordinals_vector = {0, 1,
+                                                                          1, 2,
+                                                                          2, 0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2,
-                                                                 2, 0, 1,
-                                                                 1, 2, 0,
-                                                                 0, 2, 1,
-                                                                 2, 1, 0,
-                                                                 1, 0, 2};
+  static constexpr Kokkos::Array<uint8_t, 18> permutation_node_ordinals_vector = {0, 1, 2,
+                                                                                  2, 0, 1,
+                                                                                  1, 2, 0,
+                                                                                  0, 2, 1,
+                                                                                  2, 1, 0,
+                                                                                  1, 0, 2};
 };
 
 template <>
@@ -540,12 +556,12 @@ struct topology_data<topology::TRI_4>
   static constexpr topology::topology_t value = topology::TRI_4;
   static constexpr unsigned num_nodes = 4;
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2,  3,
-                                                                 2, 0, 1,  3,
-                                                                 1, 2, 0,  3,
-                                                                 0, 2, 1,  3,
-                                                                 2, 1, 0,  3,
-                                                                 1, 0, 2,  3};
+  static constexpr Kokkos::Array<uint8_t, 24> permutation_node_ordinals_vector = {0, 1, 2,  3,
+                                                                                  2, 0, 1,  3,
+                                                                                  1, 2, 0,  3,
+                                                                                  0, 2, 1,  3,
+                                                                                  2, 1, 0,  3,
+                                                                                  1, 0, 2,  3};
 };
 
 template <>
@@ -553,23 +569,23 @@ struct topology_data<topology::TRI_6>
   : public topology_data<topology::TRI_3>
 {
   static constexpr topology::topology_t value = topology::TRI_6;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 3> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3};
   static constexpr unsigned num_nodes = 6;
 
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  3,
-                                                          1, 2,  4,
-                                                          2, 0,  5};
+  static constexpr Kokkos::Array<uint8_t, 4> edge_node_ordinals_offsets = {0, 3, 6, 9};
+  static constexpr Kokkos::Array<uint8_t, 9> edge_node_ordinals_vector = {0, 1,  3,
+                                                                          1, 2,  4,
+                                                                          2, 0,  5};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2,  3, 4, 5,
-                                                                 2, 0, 1,  5, 3, 4,
-                                                                 1, 2, 0,  4, 5, 3,
-                                                                 0, 2, 1,  5, 4, 3,
-                                                                 2, 1, 0,  4, 3, 5,
-                                                                 1, 0, 2,  3, 5, 4};
+  static constexpr Kokkos::Array<uint8_t, 36> permutation_node_ordinals_vector = {0, 1, 2,  3, 4, 5,
+                                                                                  2, 0, 1,  5, 3, 4,
+                                                                                  1, 2, 0,  4, 5, 3,
+                                                                                  0, 2, 1,  5, 4, 3,
+                                                                                  2, 1, 0,  4, 3, 5,
+                                                                                  1, 0, 2,  3, 5, 4};
 };
 
 //***************************************************************************
@@ -619,10 +635,10 @@ struct topology_data<topology::TRI_3_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 template <>
@@ -634,10 +650,10 @@ struct topology_data<topology::TRI_4_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 template <>
@@ -649,10 +665,10 @@ struct topology_data<topology::TRI_6_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 //***************************************************************************
@@ -706,8 +722,8 @@ struct topology_data<topology::SHELL_TRI_3>
 {
   static constexpr topology::topology_t value = topology::SHELL_TRI_3;
   static constexpr topology::topology_t base = topology::SHELL_TRI_3;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_3,
-                                                                  topology::TRI_3};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::TRI_3,
+                                                                                  topology::TRI_3};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -716,9 +732,9 @@ struct topology_data<topology::SHELL_TRI_3>
   static constexpr uint8_t dimension = 3;
   static constexpr uint8_t num_faces = 2;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 3, 6};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2,
-                                                          0, 2, 1};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 3, 6};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_vector = {0, 1, 2,
+                                                                          0, 2, 1};
 };
 
 template <>
@@ -727,8 +743,8 @@ struct topology_data<topology::SHELL_TRI_4>
 {
   static constexpr topology::topology_t value = topology::SHELL_TRI_4;
   static constexpr topology::topology_t base = topology::SHELL_TRI_3;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_4,
-                                                                  topology::TRI_4};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::TRI_4,
+                                                                                  topology::TRI_4};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -737,9 +753,9 @@ struct topology_data<topology::SHELL_TRI_4>
   static constexpr uint8_t dimension = 3;
   static constexpr uint8_t num_faces = 2;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 4, 8};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2,  3,
-                                                          0, 2, 1,  3};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 4, 8};
+  static constexpr Kokkos::Array<uint8_t, 8> face_node_ordinals_vector = {0, 1, 2,  3,
+                                                                          0, 2, 1,  3};
 };
 
 template <>
@@ -748,8 +764,8 @@ struct topology_data<topology::SHELL_TRI_6>
 {
   static constexpr topology::topology_t value = topology::SHELL_TRI_6;
   static constexpr topology::topology_t base = topology::SHELL_TRI_3;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_6,
-                                                                  topology::TRI_6};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::TRI_6,
+                                                                                  topology::TRI_6};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -759,9 +775,9 @@ struct topology_data<topology::SHELL_TRI_6>
   static constexpr uint8_t num_faces = 2;
 
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 6, 12};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2,  3, 4, 5,
-                                                          0, 2, 1,  5, 4, 3};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 6, 12};
+  static constexpr Kokkos::Array<uint8_t, 12> face_node_ordinals_vector = {0, 1, 2,  3, 4, 5,
+                                                                           0, 2, 1,  5, 4, 3};
 };
 
 //***************************************************************************
@@ -796,11 +812,12 @@ struct topology_data<topology::QUAD_4>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::QUAD_4;
   static constexpr topology::topology_t base = topology::QUAD_4;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 4> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 1> face_topology_vector = {topology::INVALID_TOPOLOGY};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 4;
 
   static constexpr topology::rank_t rank = topology::FACE_RANK;
@@ -815,28 +832,28 @@ struct topology_data<topology::QUAD_4>
   static constexpr uint8_t num_permutations = 8;
   static constexpr uint8_t num_positive_permutations = 4;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6, 8};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 3,
-                                                          3, 0};
+  static constexpr Kokkos::Array<uint8_t, 5> edge_node_ordinals_offsets = {0, 2, 4, 6, 8};
+  static constexpr Kokkos::Array<uint8_t, 8> edge_node_ordinals_vector = {0, 1,
+                                                                          1, 2,
+                                                                          2, 3,
+                                                                          3, 0};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_offsets = {0};
+  static constexpr Kokkos::Array<uint8_t, 1> face_node_ordinals_vector = {0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3,
-                                                                 3, 0, 1, 2,
-                                                                 2, 3, 0, 1,
-                                                                 1, 2, 3, 0,
-                                                                 0, 3, 2, 1,
-                                                                 3, 2, 1, 0,
-                                                                 2, 1, 0, 3,
-                                                                 1, 0, 3, 2};
+  static constexpr Kokkos::Array<uint8_t, 32> permutation_node_ordinals_vector = {0, 1, 2, 3,
+                                                                                  3, 0, 1, 2,
+                                                                                  2, 3, 0, 1,
+                                                                                  1, 2, 3, 0,
+                                                                                  0, 3, 2, 1,
+                                                                                  3, 2, 1, 0,
+                                                                                  2, 1, 0, 3,
+                                                                                  1, 0, 3, 2};
 };
 
 template <>
@@ -844,21 +861,21 @@ struct topology_data<topology::QUAD_6>
   : public topology_data<topology::QUAD_4>
 {
   static constexpr topology::topology_t value = topology::QUAD_6;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 4> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_2};
   static constexpr unsigned num_nodes = 6;
 
   static constexpr topology::rank_t rank = topology::FACE_RANK;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 5, 8, 10};
-  static constexpr uint8_t edge_node_ordinals_vector[] = { 0, 1, 4,
-                                                           1, 2,
-                                                           2, 3, 5,
-                                                           3, 0 };
+  static constexpr Kokkos::Array<uint8_t, 5> edge_node_ordinals_offsets = {0, 3, 5, 8, 10};
+  static constexpr Kokkos::Array<uint8_t, 10> edge_node_ordinals_vector = {0, 1, 4,
+                                                                           1, 2,
+                                                                           2, 3, 5,
+                                                                           3, 0};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 48> permutation_node_ordinals_vector = {
     0, 1, 2, 3,  4, 5,
     3, 0, 1, 2,  4, 5,
     2, 3, 0, 1,  5, 4,
@@ -875,19 +892,19 @@ struct topology_data<topology::QUAD_8>
   : public topology_data<topology::QUAD_4>
 {
   static constexpr topology::topology_t value = topology::QUAD_8;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 4> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3};
   static constexpr unsigned num_nodes = 8;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  4,
-                                                           1, 2,  5,
-                                                           2, 3,  6,
-                                                           3, 0,  7};
+  static constexpr Kokkos::Array<uint8_t, 5> edge_node_ordinals_offsets = {0, 3, 6, 9, 12};
+  static constexpr Kokkos::Array<uint8_t, 12> edge_node_ordinals_vector = {0, 1,  4,
+                                                                           1, 2,  5,
+                                                                           2, 3,  6,
+                                                                           3, 0,  7};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 64> permutation_node_ordinals_vector = {
     0, 1, 2, 3,  4, 5, 6, 7,
     3, 0, 1, 2,  7, 4, 5, 6,
     2, 3, 0, 1,  6, 7, 4, 5,
@@ -906,7 +923,7 @@ struct topology_data<topology::QUAD_9>
   static constexpr topology::topology_t value = topology::QUAD_9;
   static constexpr unsigned num_nodes = 9;
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 72> permutation_node_ordinals_vector = {
     0, 1, 2, 3,  4, 5, 6, 7,  8,
     3, 0, 1, 2,  7, 4, 5, 6,  8,
     2, 3, 0, 1,  6, 7, 4, 5,  8,
@@ -950,10 +967,10 @@ struct topology_data<topology::QUAD_4_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 template <>
@@ -965,10 +982,10 @@ struct topology_data<topology::QUAD_8_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 template <>
@@ -980,10 +997,10 @@ struct topology_data<topology::QUAD_9_2D>
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,   // 0d
-                                                       false,   // 1d
-                                                       true,    // 2d
-                                                       false};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,   // 0d
+                                                                      false,   // 1d
+                                                                      true,    // 2d
+                                                                      false};  // 3d
 };
 
 //***************************************************************************
@@ -1018,8 +1035,8 @@ struct topology_data<topology::SHELL_QUAD_4>
 {
   static constexpr topology::topology_t value = topology::SHELL_QUAD_4;
   static constexpr topology::topology_t base = topology::SHELL_QUAD_4;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_4,
-                                                                  topology::QUAD_4};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::QUAD_4,
+                                                                                  topology::QUAD_4};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -1028,9 +1045,9 @@ struct topology_data<topology::SHELL_QUAD_4>
   static constexpr uint8_t dimension = 3;
   static constexpr uint8_t num_faces = 2;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 4, 8};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2, 3,
-                                                          0, 3, 2, 1};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 4, 8};
+  static constexpr Kokkos::Array<uint8_t, 8> face_node_ordinals_vector = {0, 1, 2, 3,
+                                                                          0, 3, 2, 1};
 };
 
 template <>
@@ -1039,8 +1056,8 @@ struct topology_data<topology::SHELL_QUAD_8>
 {
   static constexpr topology::topology_t value = topology::SHELL_QUAD_8;
   static constexpr topology::topology_t base = topology::SHELL_QUAD_4;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_8,
-                                                                  topology::QUAD_8};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::QUAD_8,
+                                                                                  topology::QUAD_8};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -1049,9 +1066,9 @@ struct topology_data<topology::SHELL_QUAD_8>
   static constexpr uint8_t dimension = 3;
   static constexpr uint8_t num_faces = 2;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 8, 16};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2, 3,  4, 5, 6, 7,
-                                                          0, 3, 2, 1,  7, 6, 5, 4};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 8, 16};
+  static constexpr Kokkos::Array<uint8_t, 16> face_node_ordinals_vector = {0, 1, 2, 3,  4, 5, 6, 7,
+                                                                           0, 3, 2, 1,  7, 6, 5, 4};
 };
 
 template <>
@@ -1060,8 +1077,8 @@ struct topology_data<topology::SHELL_QUAD_9>
 {
   static constexpr topology::topology_t value = topology::SHELL_QUAD_9;
   static constexpr topology::topology_t base = topology::SHELL_QUAD_4;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_9,
-                                                                  topology::QUAD_9};
+  static constexpr Kokkos::Array<topology::topology_t, 2> face_topology_vector = {topology::QUAD_9,
+                                                                                  topology::QUAD_9};
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
   static constexpr topology::rank_t side_rank = topology::FACE_RANK;
@@ -1070,9 +1087,9 @@ struct topology_data<topology::SHELL_QUAD_9>
   static constexpr uint8_t dimension = 3;
   static constexpr uint8_t num_faces = 2;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 9, 18};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 2, 3,  4, 5, 6, 7,  8,
-                                                          0, 3, 2, 1,  7, 6, 5, 4,  8};
+  static constexpr Kokkos::Array<uint8_t, 3> face_node_ordinals_offsets = {0, 9, 18};
+  static constexpr Kokkos::Array<uint8_t, 18> face_node_ordinals_vector = {0, 1, 2, 3,  4, 5, 6, 7,  8,
+                                                                           0, 3, 2, 1,  7, 6, 5, 4,  8};
 };
 
 //***************************************************************************
@@ -1086,16 +1103,17 @@ struct topology_data<topology::TET_4>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::TET_4;
   static constexpr topology::topology_t base = topology::TET_4;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_3,
-                                                                  topology::TRI_3,
-                                                                  topology::TRI_3,
-                                                                  topology::TRI_3};
+  static constexpr Kokkos::Array<topology::topology_t, 6> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 4> face_topology_vector = {topology::TRI_3,
+                                                                                  topology::TRI_3,
+                                                                                  topology::TRI_3,
+                                                                                  topology::TRI_3};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 4;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -1110,37 +1128,37 @@ struct topology_data<topology::TET_4>
   static constexpr uint8_t num_permutations = 12;
   static constexpr uint8_t num_positive_permutations = 12;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6, 8, 10, 12};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 0,
-                                                          0, 3,
-                                                          1, 3,
-                                                          2, 3};
+  static constexpr Kokkos::Array<uint8_t, 7> edge_node_ordinals_offsets = {0, 2, 4, 6, 8, 10, 12};
+  static constexpr Kokkos::Array<uint8_t, 12> edge_node_ordinals_vector = {0, 1,
+                                                                           1, 2,
+                                                                           2, 0,
+                                                                           0, 3,
+                                                                           1, 3,
+                                                                           2, 3};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 3, 6, 9, 12};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 3,
-                                                          1, 2, 3,
-                                                          0, 3, 2,
-                                                          0, 2, 1};
+  static constexpr Kokkos::Array<uint8_t, 5> face_node_ordinals_offsets = {0, 3, 6, 9, 12};
+  static constexpr Kokkos::Array<uint8_t, 12> face_node_ordinals_vector = {0, 1, 3,
+                                                                           1, 2, 3,
+                                                                           0, 3, 2,
+                                                                           0, 2, 1};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3,
-                                                                 1, 2, 0, 3,
-                                                                 2, 0, 1, 3,
-                                                                 0, 3, 1, 2,
-                                                                 3, 1, 0, 2,
-                                                                 1, 0, 3, 2,
-                                                                 0, 2, 3, 1,
-                                                                 2, 3, 0, 1,
-                                                                 3, 0, 2, 1,
-                                                                 1, 3, 2, 0,
-                                                                 3, 2, 1, 0,
-                                                                 2, 1, 3, 0};
+  static constexpr Kokkos::Array<uint8_t, 48> permutation_node_ordinals_vector = {0, 1, 2, 3,
+                                                                                  1, 2, 0, 3,
+                                                                                  2, 0, 1, 3,
+                                                                                  0, 3, 1, 2,
+                                                                                  3, 1, 0, 2,
+                                                                                  1, 0, 3, 2,
+                                                                                  0, 2, 3, 1,
+                                                                                  2, 3, 0, 1,
+                                                                                  3, 0, 2, 1,
+                                                                                  1, 3, 2, 0,
+                                                                                  3, 2, 1, 0,
+                                                                                  2, 1, 3, 0};
 };
 
 //TODO: Delete TET_8
@@ -1149,21 +1167,21 @@ struct topology_data<topology::TET_8>
   : public topology_data<topology::TET_4>
 {
   static constexpr topology::topology_t value = topology::TET_8;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_4,
-                                                                  topology::TRI_4,
-                                                                  topology::TRI_4,
-                                                                  topology::TRI_4};
+  static constexpr Kokkos::Array<topology::topology_t, 4> face_topology_vector = {topology::TRI_4,
+                                                                                  topology::TRI_4,
+                                                                                  topology::TRI_4,
+                                                                                  topology::TRI_4};
   static constexpr unsigned num_nodes = 8;
 
   static constexpr uint8_t num_permutations = 1;
   static constexpr uint8_t num_positive_permutations = 1;
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 4, 8, 12, 16};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 3,  4,
-                                                          1, 2, 3,  5,
-                                                          0, 3, 2,  7,
-                                                          0, 2, 1,  6};
+  static constexpr Kokkos::Array<uint8_t, 5> face_node_ordinals_offsets = {0, 4, 8, 12, 16};
+  static constexpr Kokkos::Array<uint8_t, 16> face_node_ordinals_vector = {0, 1, 3,  4,
+                                                                           1, 2, 3,  5,
+                                                                           0, 3, 2,  7,
+                                                                           0, 2, 1,  6};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3,  4, 5, 6, 7};
+  static constexpr Kokkos::Array<uint8_t, 8> permutation_node_ordinals_vector = {0, 1, 2, 3,  4, 5, 6, 7};
 };
 
 template <>
@@ -1171,34 +1189,34 @@ struct topology_data<topology::TET_10>
   : public topology_data<topology::TET_4>
 {
   static constexpr topology::topology_t value = topology::TET_10;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6};
+  static constexpr Kokkos::Array<topology::topology_t, 6> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 4> face_topology_vector = {topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6};
   static constexpr unsigned num_nodes = 10;
 
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 15, 18};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  4,
-                                                          1, 2,  5,
-                                                          2, 0,  6,
-                                                          0, 3,  7,
-                                                          1, 3,  8,
-                                                          2, 3,  9};
+  static constexpr Kokkos::Array<uint8_t, 7> edge_node_ordinals_offsets = {0, 3, 6, 9, 12, 15, 18};
+  static constexpr Kokkos::Array<uint8_t, 18> edge_node_ordinals_vector = {0, 1,  4,
+                                                                           1, 2,  5,
+                                                                           2, 0,  6,
+                                                                           0, 3,  7,
+                                                                           1, 3,  8,
+                                                                           2, 3,  9};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 6, 12, 18, 24};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 3,  4, 8, 7,
-                                                          1, 2, 3,  5, 9, 8,
-                                                          0, 3, 2,  7, 9, 6,
-                                                          0, 2, 1,  6, 5, 4};
+  static constexpr Kokkos::Array<uint8_t, 5> face_node_ordinals_offsets = {0, 6, 12, 18, 24};
+  static constexpr Kokkos::Array<uint8_t, 24> face_node_ordinals_vector = {0, 1, 3,  4, 8, 7,
+                                                                           1, 2, 3,  5, 9, 8,
+                                                                           0, 3, 2,  7, 9, 6,
+                                                                           0, 2, 1,  6, 5, 4};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 120> permutation_node_ordinals_vector = {
     0, 1, 2, 3,  4, 5, 6, 7, 8, 9,
     1, 2, 0, 3,  5, 6, 4, 8, 9, 7,
     2, 0, 1, 3,  6, 4, 5, 9, 7, 8,
@@ -1221,7 +1239,7 @@ struct topology_data<topology::TET_11>
   static constexpr topology::topology_t value = topology::TET_11;
   static constexpr unsigned num_nodes = 11;
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 132> permutation_node_ordinals_vector = {
     0, 1, 2, 3,  4, 5, 6, 7, 8, 9,  10,
     1, 2, 0, 3,  5, 6, 4, 8, 9, 7,  10,
     2, 0, 1, 3,  6, 4, 5, 9, 7, 8,  10,
@@ -1247,19 +1265,20 @@ struct topology_data<topology::PYRAMID_5>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::PYRAMID_5;
   static constexpr topology::topology_t base = topology::PYRAMID_5;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_3,
-                                                                  topology::TRI_3,
-                                                                  topology::TRI_3,
-                                                                  topology::TRI_3,
-                                                                  topology::QUAD_4};
+  static constexpr Kokkos::Array<topology::topology_t, 8> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::TRI_3,
+                                                                                  topology::TRI_3,
+                                                                                  topology::TRI_3,
+                                                                                  topology::TRI_3,
+                                                                                  topology::QUAD_4};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 5;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -1274,32 +1293,32 @@ struct topology_data<topology::PYRAMID_5>
   static constexpr uint8_t num_permutations = 4;
   static constexpr uint8_t num_positive_permutations = 4;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6, 8, 10, 12, 14, 16};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 3,
-                                                          3, 0,
-                                                          0, 4,
-                                                          1, 4,
-                                                          2, 4,
-                                                          3, 4};
+  static constexpr Kokkos::Array<uint8_t, 9> edge_node_ordinals_offsets = {0, 2, 4, 6, 8, 10, 12, 14, 16};
+  static constexpr Kokkos::Array<uint8_t, 16> edge_node_ordinals_vector = {0, 1,
+                                                                           1, 2,
+                                                                           2, 3,
+                                                                           3, 0,
+                                                                           0, 4,
+                                                                           1, 4,
+                                                                           2, 4,
+                                                                           3, 4};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 16};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4,
-                                                          1, 2, 4,
-                                                          2, 3, 4,
-                                                          0, 4, 3,
-                                                          0, 3, 2, 1};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 3, 6, 9, 12, 16};
+  static constexpr Kokkos::Array<uint8_t, 16> face_node_ordinals_vector = {0, 1, 4,
+                                                                           1, 2, 4,
+                                                                           2, 3, 4,
+                                                                           0, 4, 3,
+                                                                           0, 3, 2, 1};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3, 4,
-                                                                 1, 2, 3, 0, 4,
-                                                                 2, 3, 0, 1, 4,
-                                                                 3, 0, 1, 2, 4};
+  static constexpr Kokkos::Array<uint8_t, 20> permutation_node_ordinals_vector = {0, 1, 2, 3, 4,
+                                                                                  1, 2, 3, 0, 4,
+                                                                                  2, 3, 0, 1, 4,
+                                                                                  3, 0, 1, 2, 4};
 };
 
 template <>
@@ -1307,39 +1326,39 @@ struct topology_data<topology::PYRAMID_13>
   : public topology_data<topology::PYRAMID_5>
 {
   static constexpr topology::topology_t value = topology::PYRAMID_13;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::QUAD_8};
+  static constexpr Kokkos::Array<topology::topology_t, 8> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::QUAD_8};
   static constexpr unsigned num_nodes = 13;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 15, 18, 21, 24};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  5,
-                                                          1, 2,  6,
-                                                          2, 3,  7,
-                                                          3, 0,  8,
-                                                          0, 4,  9,
-                                                          1, 4,  10,
-                                                          2, 4,  11,
-                                                          3, 4,  12};
+  static constexpr Kokkos::Array<uint8_t, 9> edge_node_ordinals_offsets = {0, 3, 6, 9, 12, 15, 18, 21, 24};
+  static constexpr Kokkos::Array<uint8_t, 24> edge_node_ordinals_vector = {0, 1,  5,
+                                                                           1, 2,  6,
+                                                                           2, 3,  7,
+                                                                           3, 0,  8,
+                                                                           0, 4,  9,
+                                                                           1, 4,  10,
+                                                                           2, 4,  11,
+                                                                           3, 4,  12};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 6, 12, 18, 24, 32};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4,  5, 10,  9,
-                                                          1, 2, 4,  6, 11, 10,
-                                                          2, 3, 4,  7, 12, 11,
-                                                          3, 0, 4,  8,  9, 12,
-                                                          0, 3, 2, 1,  8, 7, 6, 5};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 6, 12, 18, 24, 32};
+  static constexpr Kokkos::Array<uint8_t, 32> face_node_ordinals_vector = {0, 1, 4,  5, 10,  9,
+                                                                           1, 2, 4,  6, 11, 10,
+                                                                           2, 3, 4,  7, 12, 11,
+                                                                           3, 0, 4,  8,  9, 12,
+                                                                           0, 3, 2, 1,  8, 7, 6, 5};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 52> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4,  5, 6, 7, 8,   9, 10, 11, 12,
     1, 2, 3, 0, 4,  6, 7, 8, 5,  10, 11, 12,  9,
     2, 3, 0, 1, 4,  7, 8, 5, 6,  11, 12,  9, 10,
@@ -1352,22 +1371,22 @@ struct topology_data<topology::PYRAMID_14>
   : public topology_data<topology::PYRAMID_13>
 {
   static constexpr topology::topology_t value = topology::PYRAMID_14;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6,
-                                                                  topology::QUAD_9};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::QUAD_9};
   static constexpr unsigned num_nodes = 14;
 
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 6, 12, 18, 24, 33};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4,  5, 10,  9,
-                                                          1, 2, 4,  6, 11, 10,
-                                                          2, 3, 4,  7, 12, 11,
-                                                          3, 0, 4,  8,  9, 12,
-                                                          0, 3, 2, 1,  8, 7, 6, 5,  13};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 6, 12, 18, 24, 33};
+  static constexpr Kokkos::Array<uint8_t, 33> face_node_ordinals_vector = {0, 1, 4,  5, 10,  9,
+                                                                           1, 2, 4,  6, 11, 10,
+                                                                           2, 3, 4,  7, 12, 11,
+                                                                           3, 0, 4,  8,  9, 12,
+                                                                           0, 3, 2, 1,  8, 7, 6, 5,  13};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 56> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4,  5, 6, 7, 8,   9, 10, 11, 12,  13,
     1, 2, 3, 0, 4,  6, 7, 8, 5,  10, 11, 12,  9,  13,
     2, 3, 0, 1, 4,  7, 8, 5, 6,  11, 12,  9, 10,  13,
@@ -1385,20 +1404,21 @@ struct topology_data<topology::WEDGE_6>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::WEDGE_6;
   static constexpr topology::topology_t base = topology::WEDGE_6;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::TRI_3,
-                                                                  topology::TRI_3};
+  static constexpr Kokkos::Array<topology::topology_t, 9> edge_topology_vector = {topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::TRI_3,
+                                                                                  topology::TRI_3};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 6;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -1413,35 +1433,35 @@ struct topology_data<topology::WEDGE_6>
   static constexpr uint8_t num_permutations = 6;
   static constexpr uint8_t num_positive_permutations = 6;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 0,
-                                                          3, 4,
-                                                          4, 5,
-                                                          5, 3,
-                                                          0, 3,
-                                                          1, 4,
-                                                          2, 5};
+  static constexpr Kokkos::Array<uint8_t, 10> edge_node_ordinals_offsets = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
+  static constexpr Kokkos::Array<uint8_t, 18> edge_node_ordinals_vector = {0, 1,
+                                                                           1, 2,
+                                                                           2, 0,
+                                                                           3, 4,
+                                                                           4, 5,
+                                                                           5, 3,
+                                                                           0, 3,
+                                                                           1, 4,
+                                                                           2, 5};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 4, 8, 12, 15, 18};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4, 3,
-                                                          1, 2, 5, 4,
-                                                          0, 3, 5, 2,
-                                                          0, 2, 1,
-                                                          3, 4, 5};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 4, 8, 12, 15, 18};
+  static constexpr Kokkos::Array<uint8_t, 18> face_node_ordinals_vector = {0, 1, 4, 3,
+                                                                           1, 2, 5, 4,
+                                                                           0, 3, 5, 2,
+                                                                           0, 2, 1,
+                                                                           3, 4, 5};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3, 4, 5,
-                                                                 1, 2, 0, 4, 5, 3,
-                                                                 2, 0, 1, 5, 3, 4,
-                                                                 3, 5, 4, 0, 2, 1,
-                                                                 5, 4, 3, 2, 1, 0,
-                                                                 4, 3, 5, 1, 0, 2};
+  static constexpr Kokkos::Array<uint8_t, 36> permutation_node_ordinals_vector = {0, 1, 2, 3, 4, 5,
+                                                                                  1, 2, 0, 4, 5, 3,
+                                                                                  2, 0, 1, 5, 3, 4,
+                                                                                  3, 5, 4, 0, 2, 1,
+                                                                                  5, 4, 3, 2, 1, 0,
+                                                                                  4, 3, 5, 1, 0, 2};
 };
 
 template <>
@@ -1449,41 +1469,41 @@ struct topology_data<topology::WEDGE_12>
   : public topology_data<topology::WEDGE_6>
 {
   static constexpr topology::topology_t value = topology::WEDGE_12;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_6,
-                                                                  topology::QUAD_6,
-                                                                  topology::QUAD_6,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6};
+  static constexpr Kokkos::Array<topology::topology_t, 9> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2,
+                                                                                  topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::QUAD_6,
+                                                                                  topology::QUAD_6,
+                                                                                  topology::QUAD_6,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6};
   static constexpr unsigned num_nodes = 12;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 15, 18, 20, 22, 24};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  6,
-                                                          1, 2,  7,
-                                                          2, 0,  8,
-                                                          3, 4,  9,
-                                                          4, 5,  10,
-                                                          5, 3,  11,
-                                                          0, 3,
-                                                          1, 4,
-                                                          2, 5};
+  static constexpr Kokkos::Array<uint8_t, 10> edge_node_ordinals_offsets = {0, 3, 6, 9, 12, 15, 18, 20, 22, 24};
+  static constexpr Kokkos::Array<uint8_t, 24> edge_node_ordinals_vector = {0, 1,  6,
+                                                                           1, 2,  7,
+                                                                           2, 0,  8,
+                                                                           3, 4,  9,
+                                                                           4, 5,  10,
+                                                                           5, 3,  11,
+                                                                           0, 3,
+                                                                           1, 4,
+                                                                           2, 5};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 6, 12, 18, 24, 30};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4, 3,  6, 9,
-                                                          1, 2, 5, 4,  7, 10,
-                                                          0, 3, 5, 2,  8, 11,
-                                                          0, 2, 1,   8, 7, 6,
-                                                          3, 4, 5,  9, 10, 11};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 6, 12, 18, 24, 30};
+  static constexpr Kokkos::Array<uint8_t, 30> face_node_ordinals_vector = {0, 1, 4, 3, 6, 9,
+                                                                           1, 2, 5, 4, 7, 10,
+                                                                           0, 3, 5, 2, 8, 11,
+                                                                           0, 2, 1, 8, 7, 6,
+                                                                           3, 4, 5, 9, 10, 11};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 72> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4, 5,  6,  7,  8,  9, 10, 11,
     1, 2, 0, 4, 5, 3,  7,  8,  6, 10, 11,  9,
     2, 0, 1, 5, 3, 4,  8,  6,  7, 11,  9, 10,
@@ -1498,41 +1518,41 @@ struct topology_data<topology::WEDGE_15>
   : public topology_data<topology::WEDGE_6>
 {
   static constexpr topology::topology_t value = topology::WEDGE_15;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6};
+  static constexpr Kokkos::Array<topology::topology_t, 9> edge_topology_vector = {topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3,
+                                                                                  topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6};
   static constexpr unsigned num_nodes = 15;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 15, 18, 21, 24, 27};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  6,
-                                                          1, 2,  7,
-                                                          2, 0,  8,
-                                                          3, 4,  12,
-                                                          4, 5,  13,
-                                                          5, 3,  14,
-                                                          0, 3,  9,
-                                                          1, 4,  10,
-                                                          2, 5,  11};
+  static constexpr Kokkos::Array<uint8_t, 10> edge_node_ordinals_offsets = {0, 3, 6, 9, 12, 15, 18, 21, 24, 27};
+  static constexpr Kokkos::Array<uint8_t, 27> edge_node_ordinals_vector = {0, 1,  6,
+                                                                           1, 2,  7,
+                                                                           2, 0,  8,
+                                                                           3, 4,  12,
+                                                                           4, 5,  13,
+                                                                           5, 3,  14,
+                                                                           0, 3,  9,
+                                                                           1, 4,  10,
+                                                                           2, 5,  11};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 8, 16, 24, 30, 36};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4, 3,  6, 10, 12,  9,
-                                                          1, 2, 5, 4,  7, 11, 13, 10,
-                                                          0, 3, 5, 2,  9, 14, 11,  8,
-                                                          0, 2, 1,   8,  7,  6,
-                                                          3, 4, 5,  12, 13, 14};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 8, 16, 24, 30, 36};
+  static constexpr Kokkos::Array<uint8_t, 36> face_node_ordinals_vector = {0, 1, 4,  3,  6, 10, 12,  9,
+                                                                           1, 2, 5,  4,  7, 11, 13, 10,
+                                                                           0, 3, 5,  2,  9, 14, 11,  8,
+                                                                           0, 2, 1,  8,  7,  6,
+                                                                           3, 4, 5, 12, 13, 14};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 90> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4, 5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
     1, 2, 0, 4, 5, 3,  7,  8,  6, 10, 11,  9, 13, 14, 12,
     2, 0, 1, 5, 3, 4,  8,  6,  7, 11,  9, 10, 14, 12, 13,
@@ -1547,21 +1567,21 @@ struct topology_data<topology::WEDGE_18>
   : public topology_data<topology::WEDGE_15>
 {
   static constexpr topology::topology_t value = topology::WEDGE_18;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::TRI_6,
-                                                                  topology::TRI_6};
+  static constexpr Kokkos::Array<topology::topology_t, 5> face_topology_vector = {topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::TRI_6,
+                                                                                  topology::TRI_6};
   static constexpr unsigned num_nodes = 18;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 9, 18, 27, 33, 39};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 4, 3,  6, 10, 12,  9,  15,
-                                                          1, 2, 5, 4,  7, 11, 13, 10,  16,
-                                                          0, 3, 5, 2,  9, 14, 11,  8,  17,
-                                                          0, 2, 1,   8,  7,  6,
-                                                          3, 4, 5,  12, 13, 14};
+  static constexpr Kokkos::Array<uint8_t, 6> face_node_ordinals_offsets = {0, 9, 18, 27, 33, 39};
+  static constexpr Kokkos::Array<uint8_t, 39> face_node_ordinals_vector = {0, 1, 4, 3,  6,  10, 12,  9,  15,
+                                                                           1, 2, 5, 4,  7,  11, 13, 10,  16,
+                                                                           0, 3, 5, 2,  9,  14, 11,  8,  17,
+                                                                           0, 2, 1, 8,  7,  6,
+                                                                           3, 4, 5, 12, 13, 14};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 108> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4, 5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17,
     1, 2, 0, 4, 5, 3,  7,  8,  6, 10, 11,  9, 13, 14, 12, 16, 17, 15,
     2, 0, 1, 5, 3, 4,  8,  6,  7, 11,  9, 10, 14, 12, 13, 17, 15, 16,
@@ -1656,24 +1676,25 @@ struct topology_data<topology::HEX_8>
   typedef topology::topology_t value_type;
   static constexpr topology::topology_t value = topology::HEX_8;
   static constexpr topology::topology_t base = topology::HEX_8;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2,
-                                                                  topology::LINE_2};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::QUAD_4,
-                                                                  topology::QUAD_4};
+  static constexpr Kokkos::Array<topology::topology_t, 12> edge_topology_vector = {topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2,
+                                                                                   topology::LINE_2};
+  static constexpr Kokkos::Array<topology::topology_t, 6> face_topology_vector = {topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::QUAD_4,
+                                                                                  topology::QUAD_4};
+  static constexpr Kokkos::Array<topology::topology_t, 1> element_topology_vector = {topology::INVALID_TOPOLOGY};
   static constexpr unsigned num_nodes = 8;
 
   static constexpr topology::rank_t rank = topology::ELEMENT_RANK;
@@ -1688,58 +1709,58 @@ struct topology_data<topology::HEX_8>
   static constexpr uint8_t num_permutations = 24;
   static constexpr uint8_t num_positive_permutations = 24;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,
-                                                          1, 2,
-                                                          2, 3,
-                                                          3, 0,
-                                                          4, 5,
-                                                          5, 6,
-                                                          6, 7,
-                                                          7, 4,
-                                                          0, 4,
-                                                          1, 5,
-                                                          2, 6,
-                                                          3, 7};
+  static constexpr Kokkos::Array<uint8_t, 13> edge_node_ordinals_offsets = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24};
+  static constexpr Kokkos::Array<uint8_t, 24> edge_node_ordinals_vector = {0, 1,
+                                                                           1, 2,
+                                                                           2, 3,
+                                                                           3, 0,
+                                                                           4, 5,
+                                                                           5, 6,
+                                                                           6, 7,
+                                                                           7, 4,
+                                                                           0, 4,
+                                                                           1, 5,
+                                                                           2, 6,
+                                                                           3, 7};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 4, 8, 12, 16, 20, 24};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 5, 4,
-                                                          1, 2, 6, 5,
-                                                          2, 3, 7, 6,
-                                                          0, 4, 7, 3,
-                                                          0, 3, 2, 1,
-                                                          4, 5, 6, 7};
+  static constexpr Kokkos::Array<uint8_t, 7> face_node_ordinals_offsets = {0, 4, 8, 12, 16, 20, 24};
+  static constexpr Kokkos::Array<uint8_t, 24> face_node_ordinals_vector = {0, 1, 5, 4,
+                                                                           1, 2, 6, 5,
+                                                                           2, 3, 7, 6,
+                                                                           0, 4, 7, 3,
+                                                                           0, 3, 2, 1,
+                                                                           4, 5, 6, 7};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {0, 1, 2, 3, 4, 5, 6, 7,
-                                                                 0, 1, 5, 4, 3, 2, 6, 7,
-                                                                 0, 4, 7, 3, 1, 5, 6, 2,
-                                                                 1, 2, 3, 0, 5, 6, 7, 4,
-                                                                 1, 2, 6, 5, 0, 3, 7, 4,
-                                                                 1, 5, 4, 0, 2, 6, 7, 3,
-                                                                 2, 3, 0, 1, 6, 7, 4, 5,
-                                                                 2, 3, 7, 6, 1, 0, 4, 5,
-                                                                 2, 6, 5, 1, 3, 7, 4, 0,
-                                                                 3, 0, 1, 2, 7, 4, 5, 6,
-                                                                 3, 0, 4, 7, 2, 1, 5, 6,
-                                                                 3, 7, 6, 2, 0, 4, 5, 1,
-                                                                 4, 0, 1, 5, 7, 3, 2, 6,
-                                                                 4, 7, 3, 0, 5, 6, 2, 1,
-                                                                 4, 7, 6, 5, 0, 3, 2, 1,
-                                                                 5, 1, 2, 6, 4, 0, 3, 7,
-                                                                 5, 4, 0, 1, 6, 7, 3, 2,
-                                                                 5, 4, 7, 6, 1, 0, 3, 2,
-                                                                 6, 2, 3, 7, 5, 1, 0, 4,
-                                                                 6, 5, 1, 2, 7, 4, 0, 3,
-                                                                 6, 5, 4, 7, 2, 1, 0, 3,
-                                                                 7, 3, 0, 4, 6, 2, 1, 5,
-                                                                 7, 6, 2, 3, 4, 5, 1, 0,
-                                                                 7, 6, 5, 4, 3, 2, 1, 0};
+  static constexpr Kokkos::Array<uint8_t, 192> permutation_node_ordinals_vector = {0, 1, 2, 3, 4, 5, 6, 7,
+                                                                                   0, 1, 5, 4, 3, 2, 6, 7,
+                                                                                   0, 4, 7, 3, 1, 5, 6, 2,
+                                                                                   1, 2, 3, 0, 5, 6, 7, 4,
+                                                                                   1, 2, 6, 5, 0, 3, 7, 4,
+                                                                                   1, 5, 4, 0, 2, 6, 7, 3,
+                                                                                   2, 3, 0, 1, 6, 7, 4, 5,
+                                                                                   2, 3, 7, 6, 1, 0, 4, 5,
+                                                                                   2, 6, 5, 1, 3, 7, 4, 0,
+                                                                                   3, 0, 1, 2, 7, 4, 5, 6,
+                                                                                   3, 0, 4, 7, 2, 1, 5, 6,
+                                                                                   3, 7, 6, 2, 0, 4, 5, 1,
+                                                                                   4, 0, 1, 5, 7, 3, 2, 6,
+                                                                                   4, 7, 3, 0, 5, 6, 2, 1,
+                                                                                   4, 7, 6, 5, 0, 3, 2, 1,
+                                                                                   5, 1, 2, 6, 4, 0, 3, 7,
+                                                                                   5, 4, 0, 1, 6, 7, 3, 2,
+                                                                                   5, 4, 7, 6, 1, 0, 3, 2,
+                                                                                   6, 2, 3, 7, 5, 1, 0, 4,
+                                                                                   6, 5, 1, 2, 7, 4, 0, 3,
+                                                                                   6, 5, 4, 7, 2, 1, 0, 3,
+                                                                                   7, 3, 0, 4, 6, 2, 1, 5,
+                                                                                   7, 6, 2, 3, 4, 5, 1, 0,
+                                                                                   7, 6, 5, 4, 3, 2, 1, 0};
 };
 
 template <>
@@ -1747,52 +1768,52 @@ struct topology_data<topology::HEX_20>
   : public topology_data<topology::HEX_8>
 {
   static constexpr topology::topology_t value = topology::HEX_20;
-  static constexpr topology::topology_t edge_topology_vector[] = {topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3,
-                                                                  topology::LINE_3};
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::QUAD_8,
-                                                                  topology::QUAD_8};
+  static constexpr Kokkos::Array<topology::topology_t, 12> edge_topology_vector = {topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3,
+                                                                                   topology::LINE_3};
+  static constexpr Kokkos::Array<topology::topology_t, 6> face_topology_vector = {topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::QUAD_8,
+                                                                                  topology::QUAD_8};
   static constexpr unsigned num_nodes = 20;
 
   static constexpr uint8_t num_permutations = 24;
   static constexpr uint8_t num_positive_permutations = 24;
 
-  static constexpr uint8_t edge_node_ordinals_offsets[] = {0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36};
-  static constexpr uint8_t edge_node_ordinals_vector[] = {0, 1,  8,
-                                                          1, 2,  9,
-                                                          2, 3,  10,
-                                                          3, 0,  11,
-                                                          4, 5,  16,
-                                                          5, 6,  17,
-                                                          6, 7,  18,
-                                                          7, 4,  19,
-                                                          0, 4,  12,
-                                                          1, 5,  13,
-                                                          2, 6,  14,
-                                                          3, 7,  15};
+  static constexpr Kokkos::Array<uint8_t, 13> edge_node_ordinals_offsets = {0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36};
+  static constexpr Kokkos::Array<uint8_t, 36> edge_node_ordinals_vector = {0, 1,  8,
+                                                                           1, 2,  9,
+                                                                           2, 3,  10,
+                                                                           3, 0,  11,
+                                                                           4, 5,  16,
+                                                                           5, 6,  17,
+                                                                           6, 7,  18,
+                                                                           7, 4,  19,
+                                                                           0, 4,  12,
+                                                                           1, 5,  13,
+                                                                           2, 6,  14,
+                                                                           3, 7,  15};
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 8, 16, 24, 32, 40, 48};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 5, 4,   8, 13, 16, 12,
-                                                          1, 2, 6, 5,   9, 14, 17, 13,
-                                                          2, 3, 7, 6,  10, 15, 18, 14,
-                                                          0, 4, 7, 3,  12, 19, 15, 11,
-                                                          0, 3, 2, 1,  11, 10,  9,  8,
-                                                          4, 5, 6, 7,  16, 17, 18, 19};
+  static constexpr Kokkos::Array<uint8_t, 7> face_node_ordinals_offsets = {0, 8, 16, 24, 32, 40, 48};
+  static constexpr Kokkos::Array<uint8_t, 48> face_node_ordinals_vector = {0, 1, 5, 4,   8, 13, 16, 12,
+                                                                           1, 2, 6, 5,   9, 14, 17, 13,
+                                                                           2, 3, 7, 6,  10, 15, 18, 14,
+                                                                           0, 4, 7, 3,  12, 19, 15, 11,
+                                                                           0, 3, 2, 1,  11, 10,  9,  8,
+                                                                           4, 5, 6, 7,  16, 17, 18, 19};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 480> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4, 5, 6, 7,   8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
     0, 1, 5, 4, 3, 2, 6, 7,   8, 13, 16, 12, 11,  9, 17, 19, 10, 14, 18, 15,
     0, 4, 7, 3, 1, 5, 6, 2,  12, 19, 15, 11,  8, 16, 18, 10, 13, 17, 14,  9,
@@ -1825,23 +1846,23 @@ struct topology_data<topology::HEX_27>
   : public topology_data<topology::HEX_20>
 {
   static constexpr topology::topology_t value = topology::HEX_27;
-  static constexpr topology::topology_t face_topology_vector[] = {topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::QUAD_9,
-                                                                  topology::QUAD_9};
+  static constexpr Kokkos::Array<topology::topology_t, 6> face_topology_vector = {topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::QUAD_9,
+                                                                                  topology::QUAD_9};
   static constexpr unsigned num_nodes = 27;
 
-  static constexpr uint8_t face_node_ordinals_offsets[] = {0, 9, 18, 27, 36, 45, 54};
-  static constexpr uint8_t face_node_ordinals_vector[] = {0, 1, 5, 4,   8, 13, 16, 12,  25,
-                                                          1, 2, 6, 5,   9, 14, 17, 13,  24,
-                                                          2, 3, 7, 6,  10, 15, 18, 14,  26,
-                                                          0, 4, 7, 3,  12, 19, 15, 11,  23,
-                                                          0, 3, 2, 1,  11, 10,  9,  8,  21,
-                                                          4, 5, 6, 7,  16, 17, 18, 19,  22};
+  static constexpr Kokkos::Array<uint8_t, 7> face_node_ordinals_offsets = {0, 9, 18, 27, 36, 45, 54};
+  static constexpr Kokkos::Array<uint8_t, 54> face_node_ordinals_vector = {0, 1, 5, 4,   8, 13, 16, 12,  25,
+                                                                           1, 2, 6, 5,   9, 14, 17, 13,  24,
+                                                                           2, 3, 7, 6,  10, 15, 18, 14,  26,
+                                                                           0, 4, 7, 3,  12, 19, 15, 11,  23,
+                                                                           0, 3, 2, 1,  11, 10,  9,  8,  21,
+                                                                           4, 5, 6, 7,  16, 17, 18, 19,  22};
 
-  static constexpr uint8_t permutation_node_ordinals_vector[] = {
+  static constexpr Kokkos::Array<uint8_t, 648> permutation_node_ordinals_vector = {
     0, 1, 2, 3, 4, 5, 6, 7,   8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,  20, 21, 22, 23, 24, 25, 26,
     0, 1, 5, 4, 3, 2, 6, 7,   8, 13, 16, 12, 11,  9, 17, 19, 10, 14, 18, 15,  20, 25, 26, 23, 24, 21, 22,
     0, 4, 7, 3, 1, 5, 6, 2,  12, 19, 15, 11,  8, 16, 18, 10, 13, 17, 14,  9,  20, 23, 24, 21, 22, 25, 26,
@@ -1885,10 +1906,10 @@ struct topology_data<Topology, typename std::enable_if< (Topology > topology::SU
   static constexpr topology::rank_t side_rank = topology::INVALID_RANK;
   static constexpr bool is_valid = true;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
 };
 
 template <topology::topology_t Topology>
@@ -1903,10 +1924,10 @@ struct topology_data<Topology, typename std::enable_if< (Topology > topology::SU
   static constexpr topology::rank_t side_rank = topology::INVALID_RANK;
   static constexpr bool is_valid = true;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       false,  // 1d
-                                                       false,  // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      false,  // 1d
+                                                                      false,  // 2d
+                                                                      true};  // 3d
 };
 
 //***************************************************************************
@@ -1925,10 +1946,173 @@ struct topology_data<Topology, typename std::enable_if< (Topology > topology::SU
   static constexpr topology::rank_t side_rank = topology::INVALID_RANK;
   static constexpr bool is_valid = true;
 
-  static constexpr bool spatial_dimension_vector[4] = {false,  // 0d
-                                                       true,   // 1d
-                                                       true,   // 2d
-                                                       true};  // 3d
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {false,  // 0d
+                                                                      true,   // 1d
+                                                                      true,   // 2d
+                                                                      true};  // 3d
+};
+
+
+
+//***************************************************************************
+// topology::LINKER -- topology::CONSTRAINT_RANK
+// 2 entities
+//
+// \note Preferably, this class would support linking 2 or 3 entities, but supporting
+// all permutations of 3 entities would mean adding 45^3 enums to topology_t.
+//
+//  o------o
+//  0      1
+//
+//***************************************************************************
+
+template <topology::topology_t Topology>
+struct topology_data<Topology,
+    typename std::enable_if<(Topology >= topology::LINKER_START && Topology <= topology::LINKER_END)>::type>
+    : public topology_data<topology::INVALID_TOPOLOGY> {
+  static constexpr topology::topology_t value = Topology;
+  static constexpr topology::topology_t base = value;
+
+  // Deduce and combine the topologies of the sub-entities.
+  // Here, we assign a unique index to each combination of two topologies according to a row-major format
+  // matrix, where topology0 is the row index and topology1 is the column index.
+  static constexpr topology::topology_t topology0 = static_cast<topology::topology_t>(
+      (static_cast<unsigned>(Topology) - static_cast<unsigned>(topology::LINKER_START)) /
+      static_cast<unsigned>(topology::NUM_TOPOLOGIES) + static_cast<unsigned>(topology::BEGIN_TOPOLOGY));
+  static constexpr topology::topology_t topology1 = static_cast<topology::topology_t>(
+      (static_cast<unsigned>(Topology) - static_cast<unsigned>(topology::LINKER_START)) %
+      static_cast<unsigned>(topology::NUM_TOPOLOGIES) + static_cast<unsigned>(topology::BEGIN_TOPOLOGY));
+  using tdata0 = topology_data<topology0>;
+  using tdata1 = topology_data<topology1>;
+
+  static constexpr auto edge_topology_vector = []() constexpr {
+    if constexpr (tdata0::num_edges > 0) {
+      if constexpr (tdata1::num_edges > 0) {
+        return stk_concat_arrays(tdata0::edge_topology_vector, tdata1::edge_topology_vector);
+      } else {
+        return tdata0::edge_topology_vector;
+      }
+    } else {
+      if constexpr (tdata1::num_edges > 0) {
+        return tdata1::edge_topology_vector;
+      } else {
+        return {topology::INVALID_TOPOLOGY};
+      }
+    }
+  }();
+
+  static constexpr auto face_topology_vector = []() constexpr {
+    if constexpr (tdata0::num_faces > 0) {
+      if constexpr (tdata1::num_faces > 0) {
+        return stk_concat_arrays(tdata0::face_topology_vector, tdata1::face_topology_vector);
+      } else {
+        return tdata0::face_topology_vector;
+      }
+    } else {
+      if constexpr (tdata1::num_faces > 0) {
+        return tdata1::face_topology_vector;
+      } else {
+        return {topology::INVALID_TOPOLOGY};
+      }
+    }
+  }();
+
+  static constexpr Kokkos::Array<topology::topology_t, 2> element_topology_vector = {topology0, topology1};
+
+  static constexpr topology::rank_t rank = topology::CONSTRAINT_RANK;
+  static constexpr topology::rank_t side_rank = topology::INVALID_RANK;
+  static constexpr bool is_valid = tdata0::is_valid && tdata1::is_valid;
+  static constexpr bool has_homogeneous_faces = tdata0::has_homogeneous_faces && tdata1::has_homogeneous_faces;
+  static constexpr bool is_shell = tdata0::is_shell && tdata1::is_shell;
+  static constexpr uint8_t dimension = Kokkos::max(tdata0::dimension, tdata1::dimension);
+  static constexpr unsigned num_nodes = tdata0::num_nodes + tdata1::num_nodes;
+  static constexpr unsigned num_vertices = tdata0::num_vertices + tdata1::num_vertices;
+  static constexpr unsigned num_edges = tdata0::num_edges + tdata1::num_edges;
+  static constexpr unsigned num_faces = tdata0::num_faces + tdata1::num_faces;
+  static constexpr unsigned num_elements = 2;
+
+  // Note, the worst-case number of permutations of LINKER is 729 (corresponding to two Hex27s).
+  // This is not worth storing; as a result, we will follow the current precedent and not allow permutations
+  // for constraint rank entities.
+  static constexpr uint8_t num_permutations = 0;
+  static constexpr uint8_t num_positive_permutations = 0;
+
+  static constexpr Kokkos::Array<bool, 4> spatial_dimension_vector = {
+      tdata0::spatial_dimension_vector[0] && tdata1::spatial_dimension_vector[0],   // 0d
+      tdata0::spatial_dimension_vector[1] && tdata1::spatial_dimension_vector[1],   // 1d
+      tdata0::spatial_dimension_vector[2] && tdata1::spatial_dimension_vector[2],   // 2d
+      tdata0::spatial_dimension_vector[3] && tdata1::spatial_dimension_vector[3]};  // 3d
+
+  static constexpr auto edge_node_ordinals_offsets = []() constexpr {
+    if constexpr (tdata0::num_edges > 0) {
+      if constexpr (tdata1::num_edges > 0) {
+        return stk_concat_ordinal_offsets(tdata0::edge_node_ordinals_offsets, tdata1::edge_node_ordinals_offsets);
+      } else {
+        return tdata0::edge_node_ordinals_offsets;
+      }
+    } else {
+      if constexpr (tdata1::num_edges > 0) {
+        return tdata1::edge_node_ordinals_offsets;
+      } else {
+        return {0};
+      }
+    }
+  }();
+
+  static constexpr auto edge_node_ordinals_vector = []() constexpr {
+    if constexpr (tdata0::num_edges > 0) {
+      if constexpr (tdata1::num_edges > 0) {
+        return stk_concat_ordinal_vectors(
+            tdata0::num_nodes, tdata0::edge_node_ordinals_vector, tdata1::edge_node_ordinals_vector);
+      } else {
+        return tdata0::edge_node_ordinals_vector;
+      }
+    } else {
+      if constexpr (tdata1::num_edges > 0) {
+        return tdata1::edge_node_ordinals_vector;
+      } else {
+        return {0};
+      }
+    }
+  }();
+
+  static constexpr auto face_node_ordinals_offsets = []() constexpr {
+    if constexpr (tdata0::num_faces > 0) {
+      if constexpr (tdata1::num_faces > 0) {
+        return stk_concat_ordinal_offsets(tdata0::face_node_ordinals_offsets, tdata1::face_node_ordinals_offsets);
+      } else {
+        return tdata0::face_node_ordinals_offsets;
+      }
+    } else {
+      if constexpr (tdata1::num_faces > 0) {
+        return tdata1::face_node_ordinals_offsets;
+      } else {
+        return {0};
+      }
+    }
+  }();
+
+  static constexpr auto face_node_ordinals_vector = []() constexpr {
+    if constexpr (tdata0::num_faces > 0) {
+      if constexpr (tdata1::num_faces > 0) {
+        return stk_concat_ordinal_vectors(
+            tdata0::num_nodes, tdata0::face_node_ordinals_vector, tdata1::face_node_ordinals_vector);
+      } else {
+        return tdata0::face_node_ordinals_vector;
+      }
+    } else {
+      if constexpr (tdata1::num_faces > 0) {
+        return tdata1::face_node_ordinals_vector;
+      } else {
+        return {0};
+      }
+    }
+  }();
+
+  static constexpr Kokkos::Array<uint8_t, 3> element_node_ordinals_offsets = {0, tdata0::num_nodes, num_nodes};
+  static constexpr Kokkos::Array<uint8_t, num_nodes> element_node_ordinals_vector = stk_arange<uint8_t, num_nodes>();
+
+  static constexpr Kokkos::Array<uint8_t, 1> permutation_node_ordinals_vector = {0};
 };
 
 }} // namespace stk::topology_detail

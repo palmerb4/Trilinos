@@ -99,6 +99,32 @@ TEST(UnitTestMetaData, superElemTopoDeclarePartWithTopology)
     EXPECT_EQ(numNodes, partTopo.num_nodes());
 }
 
+TEST(UnitTestMetaData, linkerTopoDeclarePartWithTopology)
+{
+    const int spatial_dimension = 3;
+    std::vector<std::string> rank_names = {"node","edge","face","elem","constraint"};
+    MetaData meta(spatial_dimension, rank_names);
+    meta.use_simple_fields();
+    stk::topology linkerTopo0 = stk::create_linker_topology(stk::topology::PARTICLE, stk::topology::HEX_8);
+    stk::topology linkerTopo1 = stk::create_linker_topology(stk::topology::LINE_2, stk::topology::HEX_8);
+    stk::topology linkerTopo2 = stk::create_linker_topology(stk::topology::HEX_8, stk::topology::LINE_2);
+
+    Part& part0 = meta.declare_part_with_topology("linker0-part", linkerTopo0);
+    Part& part1 = meta.declare_part_with_topology("linker1-part", linkerTopo1);
+    Part& part2 = meta.declare_part_with_topology("linker2-part", linkerTopo2);
+
+    stk::topology partTopo0 = meta.get_topology(part0);
+    stk::topology partTopo1 = meta.get_topology(part1);
+    stk::topology partTopo2 = meta.get_topology(part2);
+
+    EXPECT_TRUE(partTopo0.is_linker());
+    EXPECT_TRUE(partTopo1.is_linker());
+    EXPECT_TRUE(partTopo2.is_linker());
+    EXPECT_EQ(9u, partTopo0.num_nodes());
+    EXPECT_EQ(10u, partTopo1.num_nodes());
+    EXPECT_EQ(10u, partTopo2.num_nodes());
+}
+
 TEST( UnitTestMetaData, testMetaData )
 {
   //Test functions in MetaData.cpp
@@ -745,4 +771,3 @@ TEST(UnitTestMetaData, InconsistentParallelDebugCheck_BadNumberOfFields_RootTooM
 
 }
 //----------------------------------------------------------------------
-

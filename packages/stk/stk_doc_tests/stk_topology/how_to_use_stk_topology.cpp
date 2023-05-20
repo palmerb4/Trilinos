@@ -197,7 +197,35 @@ TEST(stk_topology_understanding, sides)
   EXPECT_EQ(stk::topology::QUADRILATERAL_8, wedge.side_topology(2));
   EXPECT_EQ(stk::topology::TRIANGLE_6, wedge.side_topology(3));
   EXPECT_EQ(stk::topology::TRIANGLE_6, wedge.side_topology(4));
+}
 
+//Linkers
+TEST(stk_topology_understanding, linkers)
+{
+  stk::topology linked_topology0 = stk::topology::LINE_2;
+  stk::topology linked_topology1 = stk::topology::HEX_8;
+
+  stk::topology validLinker = stk::create_linker_topology(linked_topology0, linked_topology1);
+  EXPECT_FALSE(validLinker.is_superelement());
+  EXPECT_TRUE(validLinker.is_linker());
+  EXPECT_TRUE(stk::topology::CONSTRAINT_RANK == validLinker.rank());
+  EXPECT_EQ(linked_topology0.num_nodes() + linked_topology1.num_nodes(), validLinker.num_nodes());
+  EXPECT_EQ(linked_topology0.num_edges() + linked_topology1.num_edges(), validLinker.num_edges());
+  EXPECT_EQ(linked_topology0.num_faces() + linked_topology1.num_faces(), validLinker.num_faces());
+  EXPECT_EQ(2u, validLinker.num_elements());
+  EXPECT_EQ(0u, validLinker.num_sides());
+  EXPECT_EQ(std::max(linked_topology0.dimension(), linked_topology1.dimension()), validLinker.dimension());
+  EXPECT_EQ(0u, validLinker.num_permutations());
+  for (int i = 0; i < 12; i++) {
+    EXPECT_EQ(stk::topology::LINE_2, validLinker.edge_topology(i));
+  }
+  for (int i = 0; i < 6; i++) {
+    EXPECT_EQ(stk::topology::QUAD_4, validLinker.face_topology(i));
+  }
+  EXPECT_EQ(linked_topology0, validLinker.element_topology(0));
+  EXPECT_EQ(linked_topology1, validLinker.element_topology(1));
+  EXPECT_FALSE(validLinker.has_homogeneous_faces());
+  EXPECT_FALSE(validLinker.is_shell());
 }
 
 //Superelements

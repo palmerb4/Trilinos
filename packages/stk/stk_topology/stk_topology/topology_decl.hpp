@@ -3,6 +3,7 @@
 
 // IWYU pragma: private, include "stk_topology/topology.hpp"
 #include "stk_util/stk_config.h"
+#include <Kokkos_Core.hpp>
 #include <string>
 #include <cstdint>
 #include <limits>
@@ -94,13 +95,18 @@ struct topology
     , HEX_8,  HEXAHEDRON_8  = HEX_8
     , HEX_20, HEXAHEDRON_20 = HEX_20
     , HEX_27, HEXAHEDRON_27 = HEX_27
+    //HELPERS
     , END_TOPOLOGY
     , NUM_TOPOLOGIES = END_TOPOLOGY - BEGIN_TOPOLOGY
-    , SUPEREDGE_START = END_TOPOLOGY+1
+    //CONSTRAINT_RANK
+    , LINKER_START = END_TOPOLOGY + 1
+    , LINKER_END = NUM_TOPOLOGIES * NUM_TOPOLOGIES + LINKER_START - 1
+    //SUPER TOPOLOGIES
+    , SUPEREDGE_START = LINKER_END + 1
     , SUPEREDGE_END = SUPEREDGE_START + 1000
-    , SUPERFACE_START = SUPEREDGE_END+1
+    , SUPERFACE_START = SUPEREDGE_END + 1
     , SUPERFACE_END = SUPERFACE_START + 1000
-    , SUPERELEMENT_START = SUPERFACE_END+1
+    , SUPERELEMENT_START = SUPERFACE_END + 1
     , FORCE_TOPOLOGY_TO_UNSIGNED = ~0U // max unsigned int
   };
 
@@ -155,6 +161,10 @@ struct topology
   STK_INLINE_FUNCTION
   unsigned num_faces() const;
 
+  /// how many elements does this topology have
+  STK_INLINE_FUNCTION
+  unsigned num_elements() const;
+
   /// how many different node permutations does this topology have
   STK_INLINE_FUNCTION
   unsigned num_permutations() const;
@@ -186,6 +196,10 @@ struct topology
   STK_INLINE_FUNCTION
   topology face_topology(unsigned face_ordinal) const;
 
+  /// what is the topology of the given element
+  STK_INLINE_FUNCTION
+  topology element_topology(unsigned element_ordinal) const;
+
   /// fill the output ordinals with the ordinals that make up the given edge
   template <typename OrdinalOutputIterator>
   STK_INLINE_FUNCTION
@@ -195,6 +209,11 @@ struct topology
   template <typename OrdinalOutputIterator>
   STK_INLINE_FUNCTION
   void face_node_ordinals(unsigned face_ordinal, OrdinalOutputIterator output_ordinals) const;
+
+  /// fill the output ordinals with the ordinals that make up the given element
+  template <typename OrdinalOutputIterator>
+  STK_INLINE_FUNCTION
+  void element_node_ordinals(unsigned element_ordinal, OrdinalOutputIterator output_ordinals) const;
 
   /// fill the output ordinals with the ordinals that make up the given permutation
   template <typename OrdinalOutputIterator>
@@ -212,6 +231,12 @@ struct topology
   template <typename NodeArray, typename NodeOutputIterator>
   STK_INLINE_FUNCTION
   void face_nodes(const NodeArray & nodes, unsigned face_ordinal, NodeOutputIterator output_nodes) const;
+
+  /// fill the output nodes with the nodes that make up the given element
+  /// input 'nodes' is expected to be of length num_nodes.
+  template <typename NodeArray, typename NodeOutputIterator>
+  STK_INLINE_FUNCTION
+  void element_nodes(const NodeArray & nodes, unsigned element_ordinal, NodeOutputIterator output_nodes) const;
 
   /// fill the output nodes with the nodes that make up the given permutation
   /// input 'nodes' is expected to be of length num_nodes.
@@ -271,10 +296,12 @@ struct topology
   STK_INLINE_FUNCTION
   unsigned num_sides() const;
 
-
   /// what is the topology of the given side topology
   STK_INLINE_FUNCTION
   topology side_topology(unsigned side_ordinal = 0) const;
+
+  STK_INLINE_FUNCTION
+  bool is_linker() const;
 
   STK_INLINE_FUNCTION
   bool is_superelement() const;
@@ -490,6 +517,26 @@ topology operator--(topology &t,int)
   topology tmp = t;
   --t.m_value;
   return tmp;
+}
+
+//***************************************************************************
+//create linker
+//***************************************************************************
+inline topology create_linker_topology(topology::topology_t linked_topology0, topology::topology_t linked_topology1)
+{
+  if ((linked_topology0 >= topology::BEGIN_TOPOLOGY) && (linked_topology0 < topology::END_TOPOLOGY) 
+   && (linked_topology1 >= topology::BEGIN_TOPOLOGY) && (linked_topology1 < topology::END_TOPOLOGY)) {
+    // Here, we assign a unique index to each combination of two topologies according to a row-major format
+    // matrix, where linked_topology0 is the row index and linked_topology1 is the column index.
+    // This is an implementation detail that the user should never explicitly see.
+    const unsigned i = static_cast<unsigned>(linked_topology0 - topology::BEGIN_TOPOLOGY);
+    const unsigned j = static_cast<unsigned>(linked_topology1 - topology::BEGIN_TOPOLOGY);
+    const unsigned shift = static_cast<unsigned>(topology::LINKER_START);
+    const unsigned k = shift + i * static_cast<unsigned>(topology::NUM_TOPOLOGIES) + j;
+    return static_cast<topology::topology_t>(k);
+  } else {
+    return topology::INVALID_TOPOLOGY;
+  }
 }
 
 //***************************************************************************

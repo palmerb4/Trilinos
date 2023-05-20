@@ -70,6 +70,7 @@ struct topology::topology_type
   static const unsigned num_vertices               = data::num_vertices;
   static const unsigned num_edges                  = data::num_edges;
   static const unsigned num_faces                  = data::num_faces;
+  static const unsigned num_elements               = data::num_elements;
   static const unsigned num_permutations           = data::num_permutations;
   static const unsigned num_positive_permutations  = data::num_positive_permutations;
 
@@ -113,6 +114,18 @@ struct topology::topology_type
       case 9:   return topology_detail::edge_topology_<data, 9 >();
       case 10:  return topology_detail::edge_topology_<data, 10>();
       case 11:  return topology_detail::edge_topology_<data, 11>();
+      case 12:  return topology_detail::edge_topology_<data, 12>();
+      case 13:  return topology_detail::edge_topology_<data, 13>();
+      case 14:  return topology_detail::edge_topology_<data, 14>();
+      case 15:  return topology_detail::edge_topology_<data, 15>();
+      case 16:  return topology_detail::edge_topology_<data, 16>();
+      case 17:  return topology_detail::edge_topology_<data, 17>();
+      case 18:  return topology_detail::edge_topology_<data, 18>();
+      case 19:  return topology_detail::edge_topology_<data, 19>();
+      case 20:  return topology_detail::edge_topology_<data, 20>();
+      case 21:  return topology_detail::edge_topology_<data, 21>();
+      case 22:  return topology_detail::edge_topology_<data, 22>();
+      case 23:  return topology_detail::edge_topology_<data, 23>();
       default: break;
     }
 
@@ -125,12 +138,33 @@ struct topology::topology_type
   {
     switch (face_ordinal)
     {
-      case 0:  return topology_detail::face_topology_<data, 0>();
-      case 1:  return topology_detail::face_topology_<data, 1>();
-      case 2:  return topology_detail::face_topology_<data, 2>();
-      case 3:  return topology_detail::face_topology_<data, 3>();
-      case 4:  return topology_detail::face_topology_<data, 4>();
-      case 5:  return topology_detail::face_topology_<data, 5>();
+      case 0:  return topology_detail::face_topology_<data, 0 >();
+      case 1:  return topology_detail::face_topology_<data, 1 >();
+      case 2:  return topology_detail::face_topology_<data, 2 >();
+      case 3:  return topology_detail::face_topology_<data, 3 >();
+      case 4:  return topology_detail::face_topology_<data, 4 >();
+      case 5:  return topology_detail::face_topology_<data, 5 >();
+      case 6:  return topology_detail::face_topology_<data, 6 >();
+      case 7:  return topology_detail::face_topology_<data, 7 >();
+      case 8:  return topology_detail::face_topology_<data, 8 >();
+      case 9:  return topology_detail::face_topology_<data, 9 >();
+      case 10: return topology_detail::face_topology_<data, 10>();
+      case 11: return topology_detail::face_topology_<data, 11>();
+      default: break;
+    }
+
+    return INVALID_TOPOLOGY;
+  }
+
+
+  /// the topology of the element at the given ordinal
+  STK_FUNCTION
+  static topology element_topology(unsigned element_ordinal = 0)
+  {
+    switch (element_ordinal)
+    {
+      case 0:  return topology_detail::element_topology_<data, 0>();
+      case 1:  return topology_detail::element_topology_<data, 1>();
       default: break;
     }
 
@@ -158,6 +192,18 @@ struct topology::topology_type
       case 9:  topology_detail::edge_node_ordinals_<data, 9 >(f); break;
       case 10: topology_detail::edge_node_ordinals_<data, 10>(f); break;
       case 11: topology_detail::edge_node_ordinals_<data, 11>(f); break;
+      case 12: topology_detail::edge_node_ordinals_<data, 12>(f); break;
+      case 13: topology_detail::edge_node_ordinals_<data, 13>(f); break;
+      case 14: topology_detail::edge_node_ordinals_<data, 14>(f); break;
+      case 15: topology_detail::edge_node_ordinals_<data, 15>(f); break;
+      case 16: topology_detail::edge_node_ordinals_<data, 16>(f); break;
+      case 17: topology_detail::edge_node_ordinals_<data, 17>(f); break;
+      case 18: topology_detail::edge_node_ordinals_<data, 18>(f); break;
+      case 19: topology_detail::edge_node_ordinals_<data, 19>(f); break;
+      case 20: topology_detail::edge_node_ordinals_<data, 20>(f); break;
+      case 21: topology_detail::edge_node_ordinals_<data, 21>(f); break;
+      case 22: topology_detail::edge_node_ordinals_<data, 22>(f); break;
+      case 23: topology_detail::edge_node_ordinals_<data, 23>(f); break;
       default: break;
     }
 
@@ -173,12 +219,35 @@ struct topology::topology_type
 
     switch (face_ordinal)
     {
-      case 0:  topology_detail::face_node_ordinals_<data, 0>(f); break;
-      case 1:  topology_detail::face_node_ordinals_<data, 1>(f); break;
-      case 2:  topology_detail::face_node_ordinals_<data, 2>(f); break;
-      case 3:  topology_detail::face_node_ordinals_<data, 3>(f); break;
-      case 4:  topology_detail::face_node_ordinals_<data, 4>(f); break;
-      case 5:  topology_detail::face_node_ordinals_<data, 5>(f); break;
+      case 0:  topology_detail::face_node_ordinals_<data, 0 >(f); break;
+      case 1:  topology_detail::face_node_ordinals_<data, 1 >(f); break;
+      case 2:  topology_detail::face_node_ordinals_<data, 2 >(f); break;
+      case 3:  topology_detail::face_node_ordinals_<data, 3 >(f); break;
+      case 4:  topology_detail::face_node_ordinals_<data, 4 >(f); break;
+      case 5:  topology_detail::face_node_ordinals_<data, 5 >(f); break;
+      case 6:  topology_detail::face_node_ordinals_<data, 6 >(f); break;
+      case 7:  topology_detail::face_node_ordinals_<data, 7 >(f); break;
+      case 8:  topology_detail::face_node_ordinals_<data, 8 >(f); break;
+      case 9:  topology_detail::face_node_ordinals_<data, 9 >(f); break;
+      case 10: topology_detail::face_node_ordinals_<data, 10>(f); break;
+      case 11: topology_detail::face_node_ordinals_<data, 11>(f); break;
+      default: break;
+    }
+
+    return;
+  }
+
+  /// the node ordinals that make up the given element
+  template <typename OrdinalOutputIterator>
+  STK_FUNCTION
+  static void element_node_ordinals(unsigned element_ordinal, OrdinalOutputIterator output_ordinals)
+  {
+    topology_detail::fill_ordinal_container<OrdinalOutputIterator> f(output_ordinals);
+
+    switch (element_ordinal)
+    {
+      case 0:  topology_detail::element_node_ordinals_<data, 0>(f); break;
+      case 1:  topology_detail::element_node_ordinals_<data, 1>(f); break;
       default: break;
     }
 
@@ -245,6 +314,18 @@ struct topology::topology_type
       case 9:  topology_detail::edge_node_ordinals_<data, 9 >(f); break;
       case 10: topology_detail::edge_node_ordinals_<data, 10>(f); break;
       case 11: topology_detail::edge_node_ordinals_<data, 11>(f); break;
+      case 12: topology_detail::edge_node_ordinals_<data, 12>(f); break;
+      case 13: topology_detail::edge_node_ordinals_<data, 13>(f); break;
+      case 14: topology_detail::edge_node_ordinals_<data, 14>(f); break;
+      case 15: topology_detail::edge_node_ordinals_<data, 15>(f); break;
+      case 16: topology_detail::edge_node_ordinals_<data, 16>(f); break;
+      case 17: topology_detail::edge_node_ordinals_<data, 17>(f); break;
+      case 18: topology_detail::edge_node_ordinals_<data, 18>(f); break;
+      case 19: topology_detail::edge_node_ordinals_<data, 19>(f); break;
+      case 20: topology_detail::edge_node_ordinals_<data, 20>(f); break;
+      case 21: topology_detail::edge_node_ordinals_<data, 21>(f); break;
+      case 22: topology_detail::edge_node_ordinals_<data, 22>(f); break;
+      case 23: topology_detail::edge_node_ordinals_<data, 23>(f); break;
       default: break;
     }
 
@@ -260,12 +341,35 @@ struct topology::topology_type
 
     switch (face_ordinal)
     {
-      case 0:  topology_detail::face_node_ordinals_<data, 0>(f); break;
-      case 1:  topology_detail::face_node_ordinals_<data, 1>(f); break;
-      case 2:  topology_detail::face_node_ordinals_<data, 2>(f); break;
-      case 3:  topology_detail::face_node_ordinals_<data, 3>(f); break;
-      case 4:  topology_detail::face_node_ordinals_<data, 4>(f); break;
-      case 5:  topology_detail::face_node_ordinals_<data, 5>(f); break;
+      case 0:  topology_detail::face_node_ordinals_<data, 0 >(f); break;
+      case 1:  topology_detail::face_node_ordinals_<data, 1 >(f); break;
+      case 2:  topology_detail::face_node_ordinals_<data, 2 >(f); break;
+      case 3:  topology_detail::face_node_ordinals_<data, 3 >(f); break;
+      case 4:  topology_detail::face_node_ordinals_<data, 4 >(f); break;
+      case 5:  topology_detail::face_node_ordinals_<data, 5 >(f); break;
+      case 6:  topology_detail::face_node_ordinals_<data, 6 >(f); break;
+      case 7:  topology_detail::face_node_ordinals_<data, 7 >(f); break;
+      case 8:  topology_detail::face_node_ordinals_<data, 8 >(f); break;
+      case 9:  topology_detail::face_node_ordinals_<data, 9 >(f); break;
+      case 10: topology_detail::face_node_ordinals_<data, 10>(f); break;
+      case 11: topology_detail::face_node_ordinals_<data, 11>(f); break;
+      default: break;
+    }
+
+    return;
+  }
+
+  /// node that make up the given element
+  template <typename NodeArray, typename NodeOutputIterator>
+  STK_FUNCTION
+  static void element_nodes(const NodeArray & nodes, unsigned element_ordinal, NodeOutputIterator output_nodes)
+  {
+    topology_detail::fill_node_container<NodeArray, NodeOutputIterator> f(nodes, output_nodes);
+
+    switch (element_ordinal)
+    {
+      case 0:  topology_detail::element_node_ordinals_<data, 0>(f); break;
+      case 1:  topology_detail::element_node_ordinals_<data, 1>(f); break;
       default: break;
     }
 
@@ -318,9 +422,10 @@ struct topology::topology_type
   {
     switch(sub_rank)
     {
-    case NODE_RANK: *output_ordinals = sub_ordinal;                    break;
-    case EDGE_RANK: edge_node_ordinals(sub_ordinal, output_ordinals);  break;
-    case FACE_RANK: face_node_ordinals(sub_ordinal, output_ordinals);  break;
+    case NODE_RANK: *output_ordinals = sub_ordinal;                          break;
+    case EDGE_RANK: edge_node_ordinals(sub_ordinal, output_ordinals);        break;
+    case FACE_RANK: face_node_ordinals(sub_ordinal, output_ordinals);        break;
+    case ELEMENT_RANK: element_node_ordinals(sub_ordinal, output_ordinals);  break;
     default: break;
     }
   }
@@ -332,9 +437,10 @@ struct topology::topology_type
   {
     switch(sub_rank)
     {
-    case NODE_RANK: *output_nodes = nodes[sub_ordinal];            break;
-    case EDGE_RANK: edge_nodes(nodes, sub_ordinal, output_nodes);  break;
-    case FACE_RANK: face_nodes(nodes, sub_ordinal, output_nodes);  break;
+    case NODE_RANK: *output_nodes = nodes[sub_ordinal];                  break;
+    case EDGE_RANK: edge_nodes(nodes, sub_ordinal, output_nodes);        break;
+    case FACE_RANK: face_nodes(nodes, sub_ordinal, output_nodes);        break;
+    case ELEMENT_RANK: element_nodes(nodes, sub_ordinal, output_nodes);  break;
     default: break;
     }
   }

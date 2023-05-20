@@ -274,7 +274,7 @@ public:
     STK_ThrowRequireMsg(is_initialized(),"MetaData::declare_part: initialize() must be called before this function");
 
     stk::topology topo = topology;
-    if (topo.is_super_topology()) {
+    if (topo.is_super_topology() || topo.is_linker()) {
       if (!has_topology_root_part(topo)) {
         register_topology(topo);
       }
